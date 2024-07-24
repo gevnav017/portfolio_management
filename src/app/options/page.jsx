@@ -24,8 +24,7 @@ import Divider from "@mui/material/Divider";
 
 const Options = () => {
   const [openNewOptionEntry, setOpenNewOptionEntry] = useState(false);
-  const [tradeSide, setTradeSide] = useState("buy to open");
-
+  const [tradeSide, setTradeSide] = useState("");
   const [expanded, setExpanded] = useState(false);
 
   const handleChange = (panel) => (event, isExpanded) => {
@@ -47,7 +46,7 @@ const Options = () => {
         justifyContent="flex-end"
       >
         <Button
-          variant="contained"
+          variant="outlined"
           onClick={() => {
             setOpenNewOptionEntry(true);
           }}

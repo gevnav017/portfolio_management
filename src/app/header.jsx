@@ -13,22 +13,56 @@ import {
 } from "@headlessui/react";
 import { Bars3Icon, BellIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
-
-const navigation = [
-  { name: "Home", href: "/", current: true },
-  { name: "Dashboard", href: "/dashboard", current: false },
-  { name: "Financial Statement", href: "/financialStatement", current: false },
-  { name: "Options", href: "/options", current: false },
-  { name: "Settings", href: "/settings", current: false },
-];
+import { usePathname } from "next/navigation";
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
 }
 
 export default function Nav() {
+  const pathname = usePathname();
+
+  const navigation = [
+    { name: "Home", href: "/", current: pathname === "/" ? true : false },
+    {
+      name: "Dashboard",
+      href: "/dashboard",
+      current: pathname === "/dashboard" ? true : false,
+    },
+    {
+      name: "Financial Statement",
+      href: "/financialStatement",
+      current: pathname === "/financialStatement" ? true : false,
+    },
+    {
+      name: "Stocks",
+      href: "/stocks",
+      current: pathname === "/stocks" ? true : false,
+    },
+    {
+      name: "Options",
+      href: "/options",
+      current: pathname === "/options" ? true : false,
+    },
+    {
+      name: "Crypto",
+      href: "/crypto",
+      current: pathname === "/crypto" ? true : false,
+    },
+    {
+      name: "COT",
+      href: "/cot",
+      current: pathname === "/cot" ? true : false,
+    },
+    {
+      name: "Settings",
+      href: "/settings",
+      current: pathname === "/settings" ? true : false,
+    },
+  ];
+
   return (
-    <Disclosure as="nav" className="bg-gray-800">
+    <Disclosure as="nav" className="bg-gray-700">
       {({ open }) => (
         <>
           <div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
@@ -52,7 +86,7 @@ export default function Nav() {
                   <img
                     className="h-8 w-auto"
                     src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=500"
-                    alt="Build Flow"
+                    alt="Portfolio Management Image"
                   />
                 </div>
                 <div className="hidden sm:ml-6 sm:block">
