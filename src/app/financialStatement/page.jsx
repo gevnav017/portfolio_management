@@ -20,7 +20,6 @@ import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
-import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
@@ -30,6 +29,11 @@ import AccordionSummary from "@mui/material/AccordionSummary";
 import Typography from "@mui/material/Typography";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import Divider from "@mui/material/Divider";
+import Input from '@mui/material/Input';
+import FilledInput from '@mui/material/FilledInput';
+import OutlinedInput from '@mui/material/OutlinedInput';
+import InputLabel from '@mui/material/InputLabel';
+import InputAdornment from '@mui/material/InputAdornment';
 
 const FinancialStatement = () => {
   const [openNewIncomeEntry, setOpenNewIncomeEntry] = useState(false);
@@ -66,6 +70,8 @@ const FinancialStatement = () => {
 
   const onSubmitNewIncome = (formData) => {
     console.log(formData);
+
+    setOpenNewIncomeEntry(false);
   };
 
   return (
@@ -78,7 +84,7 @@ const FinancialStatement = () => {
 
       <Stack direction="row" justifyContent="space-between">
         {/* side column 1 */}
-        <Stack spacing={2} p={2}>
+        <Stack spacing={3} p={2}>
           {/* income table */}
           <Stack>
             <TableContainer component={Paper}>
@@ -166,7 +172,7 @@ const FinancialStatement = () => {
         </Stack>
 
         {/* side column 2 */}
-        <Stack spacing={2} p={2}>
+        <Stack spacing={3} p={2}>
           {/* summary of financial statement */}
           <Stack spacing={2}>
             <Stack align="center">
@@ -312,7 +318,7 @@ const FinancialStatement = () => {
         </Stack>
       </Stack>
 
-      {/* dialog for new entry */}
+      {/* dialog income entry */}
       <Dialog
         open={openNewIncomeEntry}
         onClose={() => {
@@ -323,63 +329,36 @@ const FinancialStatement = () => {
           <DialogTitle>New Income Entry</DialogTitle>
           <DialogContent>
             <DialogContentText>
-              Enter option contract information below
+              Enter income information below
             </DialogContentText>
             <Stack gap={2}>
-              <TextField
-                // inputRef={register("symbol")}
-                autoFocus
-                required
-                margin="dense"
-                id="symbol"
-                name="symbol"
-                label="Symbol"
-                type="text"
-                fullWidth
-                variant="standard"
-              />
-              <TextField
-                autoFocus
-                required
-                margin="dense"
-                id="shares"
-                name="shares"
-                label="Quantity of shares"
-                type="number"
-                fullWidth
-                variant="standard"
-              />
+              <FormControl fullWidth variant="standard">
+                <InputLabel htmlFor="incomeName">
+                  Name
+                </InputLabel>
+                <Input
+                  id="incomeName"
+                  {...register("incomeName")}
+                />
+              </FormControl>
+              <FormControl fullWidth variant="standard">
+                <InputLabel htmlFor="incomeAmount">
+                  Amount
+                </InputLabel>
+                <Input
+                  id="incomeAmount"
+                  {...register("incomeAmount")}
+                  startAdornment={
+                    <InputAdornment position="start">$</InputAdornment>
+                  }
+                />
+              </FormControl>
               <FormControl variant="standard" fullWidth>
-              <InputLabel id="tradeSideSelect">Trade Side</InputLabel>
-              <Select
-                labelId="tradeSideSelect"
-                value={"test"}
-                onChange={() => {}}
-              >
-                <MenuItem value={"test"}>Buy to open</MenuItem>
-              </Select>
-            </FormControl>
-              <TextField
-                autoFocus
-                required
-                margin="dense"
-                id="price"
-                name="price"
-                label="Price"
-                type="number"
-                fullWidth
-                variant="standard"
-              />
-              <TextField
-                autoFocus
-                required
-                margin="dense"
-                id="tradeDate"
-                name="tradeDate"
-                type="date"
-                fullWidth
-                variant="standard"
-              />
+                <InputLabel id="incomeCategory">Category</InputLabel>
+                <Select labelId="incomeCategory" value={"test"} {...register("incomeCategory")} onChange={() => {}}>
+                  <MenuItem value={"test"}>Salary</MenuItem>
+                </Select>
+              </FormControl>
             </Stack>
           </DialogContent>
           <DialogActions>
