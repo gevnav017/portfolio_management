@@ -24,7 +24,8 @@
     "react": "^18",
     "react-dom": "^18",
     "react-hook-form": "^7.52.1",
-    "styled-components": "^6.1.12"
+    "styled-components": "^6.1.12",
+    "swr": "^2.2.5"
   },
   "devDependencies": {
     "eslint": "^8",

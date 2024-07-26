@@ -1,44 +1,22 @@
-"use client";
+// file imports
+import { AddAssetButtonDialog } from "./assets";
+import db from "../../../db/db";
+// MUI imports
+import {
+  Stack,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Card,
+  Button,
+  Typography,
+} from "@mui/material";
 
-import { useState } from "react";
-import { useForm } from "react-hook-form";
-
-import Table from "@mui/material/Table";
-import TableBody from "@mui/material/TableBody";
-import TableCell from "@mui/material/TableCell";
-import TableContainer from "@mui/material/TableContainer";
-import TableHead from "@mui/material/TableHead";
-import TableRow from "@mui/material/TableRow";
-import Paper from "@mui/material/Paper";
-import Stack from "@mui/material/Stack";
-import Card from "@mui/material/Card";
-import Button from "@mui/material/Button";
-import Box from "@mui/material/Box";
-import TextField from "@mui/material/TextField";
-import Dialog from "@mui/material/Dialog";
-import DialogActions from "@mui/material/DialogActions";
-import DialogContent from "@mui/material/DialogContent";
-import DialogContentText from "@mui/material/DialogContentText";
-import DialogTitle from "@mui/material/DialogTitle";
-import MenuItem from "@mui/material/MenuItem";
-import FormControl from "@mui/material/FormControl";
-import Select from "@mui/material/Select";
-import Accordion from "@mui/material/Accordion";
-import AccordionDetails from "@mui/material/AccordionDetails";
-import AccordionSummary from "@mui/material/AccordionSummary";
-import Typography from "@mui/material/Typography";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import Divider from "@mui/material/Divider";
-import Input from '@mui/material/Input';
-import FilledInput from '@mui/material/FilledInput';
-import OutlinedInput from '@mui/material/OutlinedInput';
-import InputLabel from '@mui/material/InputLabel';
-import InputAdornment from '@mui/material/InputAdornment';
-
-const FinancialStatement = () => {
-  const [openNewIncomeEntry, setOpenNewIncomeEntry] = useState(false);
-  const { register, handleSubmit } = useForm();
-
+const FinancialStatement = async () => {
   const TAX_RATE = 0.07;
 
   function ccyFormat(num) {
@@ -65,14 +43,8 @@ const FinancialStatement = () => {
   ];
 
   const invoiceSubtotal = subtotal(rows);
-  const invoiceTaxes = TAX_RATE * invoiceSubtotal;
-  const invoiceTotal = invoiceTaxes + invoiceSubtotal;
 
-  const onSubmitNewIncome = (formData) => {
-    console.log(formData);
-
-    setOpenNewIncomeEntry(false);
-  };
+  const assets = await db.asset.findMany();
 
   return (
     <Stack spacing={3}>
@@ -95,25 +67,18 @@ const FinancialStatement = () => {
                       <Typography variant="subtitle1">Income</Typography>
                     </TableCell>
                     <TableCell align="right">
-                      <Button
-                        variant="outlined"
-                        onClick={() => {
-                          setOpenNewIncomeEntry(true);
-                        }}
-                      >
-                        Add Income
-                      </Button>
+                      <AddAssetButtonDialog />
                     </TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {rows.map((row) => (
-                    <TableRow key={row.desc}>
+                  {assets?.map((asset) => (
+                    <TableRow key={asset.id}>
                       <TableCell>
-                        Salary category then drop down for details
+                        {asset.desc}
                       </TableCell>
                       <TableCell align="right">
-                        ${ccyFormat(row.price)}
+                        ${ccyFormat(asset.amount)}
                       </TableCell>
                     </TableRow>
                   ))}
@@ -317,64 +282,6 @@ const FinancialStatement = () => {
           </Stack>
         </Stack>
       </Stack>
-
-      {/* dialog income entry */}
-      <Dialog
-        open={openNewIncomeEntry}
-        onClose={() => {
-          setOpenNewIncomeEntry(false);
-        }}
-      >
-        <form onSubmit={handleSubmit(onSubmitNewIncome)}>
-          <DialogTitle>New Income Entry</DialogTitle>
-          <DialogContent>
-            <DialogContentText>
-              Enter income information below
-            </DialogContentText>
-            <Stack gap={2}>
-              <FormControl fullWidth variant="standard">
-                <InputLabel htmlFor="incomeName">
-                  Name
-                </InputLabel>
-                <Input
-                  id="incomeName"
-                  {...register("incomeName")}
-                />
-              </FormControl>
-              <FormControl fullWidth variant="standard">
-                <InputLabel htmlFor="incomeAmount">
-                  Amount
-                </InputLabel>
-                <Input
-                  id="incomeAmount"
-                  {...register("incomeAmount")}
-                  startAdornment={
-                    <InputAdornment position="start">$</InputAdornment>
-                  }
-                />
-              </FormControl>
-              <FormControl variant="standard" fullWidth>
-                <InputLabel id="incomeCategory">Category</InputLabel>
-                <Select labelId="incomeCategory" value={"test"} {...register("incomeCategory")} onChange={() => {}}>
-                  <MenuItem value={"test"}>Salary</MenuItem>
-                </Select>
-              </FormControl>
-            </Stack>
-          </DialogContent>
-          <DialogActions>
-            <Button
-              onClick={() => {
-                setOpenNewIncomeEntry(false);
-              }}
-            >
-              Cancel
-            </Button>
-            <Button type="submit" variant="contained">
-              Submit
-            </Button>
-          </DialogActions>
-        </form>
-      </Dialog>
     </Stack>
   );
 };

@@ -1,7 +1,7 @@
 import db from "../db/db";
 
-const assetsFindMany = async () => {
+export const assetsFindMany = async () => {
     const res = await db.asset.findMany();
 
-    return res;
+    res.send("test")
 }
