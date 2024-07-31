@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-import { AddIncomeButtonDialog } from "./incomeDialog";
+import { AddAssetButtonDialog } from "./assetDialog";
 import { ccyFormat } from "../lib/component";
 
 // MUI imports
@@ -26,13 +26,13 @@ import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 
-const Rows = ({ category, incomes }) => {
+const Rows = ({ category, assets }) => {
   const [openSubRows, setOpenSubRows] = useState(false);
   const [anchorMoreDropDown, setAnchorMoreDropDown] = useState(null);
   const openMoreDropDown = Boolean(anchorMoreDropDown);
 
-  const incomesByCateogry = incomes?.filter(
-    (income) => income.category === category
+  const incomesByCateogry = assets?.filter(
+    (asset) => asset.category === category
   );
 
   return (
@@ -104,10 +104,10 @@ const Rows = ({ category, incomes }) => {
   );
 };
 
-const IncomeTable = ({
-  incomes,
-  incomeTotal,
-  incomeCategories,
+const AssetTable = ({
+  assets,
+  assetTotal,
+  assetCategories,
   categories,
 }) => {
   return (
@@ -116,16 +116,16 @@ const IncomeTable = ({
         <TableHead>
           <TableRow>
             <TableCell>
-              <Typography variant="subtitle1">Income</Typography>
+              <Typography variant="subtitle1">Asset</Typography>
             </TableCell>
             <TableCell align="right">
-              <AddIncomeButtonDialog categories={categories} />
+              <AddAssetButtonDialog categories={categories} />
             </TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
-          {[...incomeCategories]?.map((category) => (
-            <Rows key={category} category={category} incomes={incomes} />
+          {[...assetCategories]?.map((category) => (
+            <Rows key={category} category={category} assets={assets} />
           ))}
           {/* table total amount */}
           <TableRow>
@@ -134,7 +134,7 @@ const IncomeTable = ({
             </TableCell>
             <TableCell align="right">
               <Typography variant="subtitle1">
-                {ccyFormat(incomeTotal)}
+                {ccyFormat(assetTotal)}
               </Typography>
             </TableCell>
           </TableRow>
@@ -144,4 +144,4 @@ const IncomeTable = ({
   );
 };
 
-export default IncomeTable;
+export default AssetTable;

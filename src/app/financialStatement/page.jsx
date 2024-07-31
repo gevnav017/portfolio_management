@@ -1,34 +1,38 @@
 // route imports
-import { GetCategories } from "../api/category/route";
-import { GetIncomes } from "../api/income/route";
-import { GetExpenses } from "../api/expense/route";
+import { getCategories } from "../api/category/route";
+import { getIncomes } from "../api/income/route";
+import { getExpenses } from "../api/expense/route";
+import { getAssets } from "../api/asset/route";
+import { getLiabilities } from "../api/liability/route";
 
 import IncomeTable from "./incomeTable";
 import ExpenseTable from "./expenseTable";
+import AssetTable from "./assetTable";
+import LiabilityTable from "./liabilityTable";
 
 // MUI imports
 import {
   Stack,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
   Card,
-  Button,
   Typography,
 } from "@mui/material";
 
 const FinancialStatement = async () => {
-  const { categories } = await GetCategories();
+  const { categories } = await getCategories();
 
-  const { incomes, incomeTotal, incomeCategories } = await GetIncomes();
-  const formattedIncomes = JSON.parse(JSON.stringify(incomes));
+  const { incomes, incomeTotal, incomeCategories } = await getIncomes();
+  const formattedIncomes = JSON.parse(JSON.stringify(incomes) || null);
 
-  const { expenses, expenseTotal, expenseCategories } = await GetExpenses();
-  const formattedExpenses = JSON.parse(JSON.stringify(expenses));
+  const { expenses, expenseTotal, expenseCategories } = await getExpenses();
+  const formattedExpenses = JSON.parse(JSON.stringify(expenses) || null);
+
+  const { assets, assetTotal, assetCategories } = await getAssets();
+  const formattedAssets = JSON.parse(JSON.stringify(assets) || null);
+
+  const { liabilities, liabilityTotal, liabilityCategories } =
+    await getLiabilities();
+  const formattedLiabilities = JSON.parse(JSON.stringify(liabilities) || null);
+  console.log(liabilities)
 
   return (
     <Stack spacing={3}>
@@ -98,79 +102,27 @@ const FinancialStatement = async () => {
               </Stack>
             </Card>
           </Stack>
-          {/* assets table */}
           <Stack>
-            <TableContainer component={Paper}>
-              <Table sx={{ minWidth: 700 }} aria-label="spanning table">
-                <TableHead>
-                  <TableRow>
-                    <TableCell>
-                      <Typography variant="subtitle1">Asset</Typography>
-                    </TableCell>
-                    <TableCell align="right">
-                      <Button variant="outlined">Add Asset</Button>
-                    </TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {/* {assets.map((row) => (
-                    <TableRow key={row.desc}>
-                      <TableCell>Cash</TableCell>
-                      <TableCell align="right">
-                        ${ccyFormat(row.amount)}
-                      </TableCell>
-                    </TableRow>
-                  ))} */}
-                  <TableRow>
-                    <TableCell>
-                      <Typography variant="subtitle1">Total</Typography>
-                    </TableCell>
-                    <TableCell align="right">
-                      <Typography variant="subtitle1">
-                        {/* ${ccyFormat(assetTotal)} */}
-                      </Typography>
-                    </TableCell>
-                  </TableRow>
-                </TableBody>
-              </Table>
-            </TableContainer>
+            {/* assets table */}
+            <Stack>
+              <AssetTable
+                assets={formattedAssets}
+                assetTotal={assetTotal}
+                assetCategories={assetCategories}
+                categories={categories}
+              />
+            </Stack>
           </Stack>
-          {/* liability table */}
           <Stack>
-            <TableContainer component={Paper}>
-              <Table sx={{ minWidth: 700 }} aria-label="spanning table">
-                <TableHead>
-                  <TableRow>
-                    <TableCell>
-                      <Typography variant="subtitle1">Liability</Typography>
-                    </TableCell>
-                    <TableCell align="right">
-                      <Button variant="outlined">Add Liability</Button>
-                    </TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {/* {assets.map((row) => (
-                    <TableRow key={row.desc}>
-                      <TableCell>Auto Loan</TableCell>
-                      <TableCell align="right">
-                        ${ccyFormat(row.amount)}
-                      </TableCell>
-                    </TableRow>
-                  ))} */}
-                  <TableRow>
-                    <TableCell>
-                      <Typography variant="subtitle1">Total</Typography>
-                    </TableCell>
-                    <TableCell align="right">
-                      <Typography variant="subtitle1">
-                        {/* ${ccyFormat(assetTotal)} */}
-                      </Typography>
-                    </TableCell>
-                  </TableRow>
-                </TableBody>
-              </Table>
-            </TableContainer>
+            <Stack>
+              {/* liability table */}
+              <LiabilityTable
+                liabilities={formattedLiabilities}
+                liabilityTotal={liabilityTotal}
+                liabilityCategories={liabilityCategories}
+                categories={categories}
+              />
+            </Stack>
           </Stack>
         </Stack>
       </Stack>

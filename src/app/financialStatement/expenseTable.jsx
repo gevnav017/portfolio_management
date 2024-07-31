@@ -17,28 +17,35 @@ import {
   IconButton,
   Paper,
   Typography,
+  Menu,
+  MenuItem,
 } from "@mui/material";
+
+import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 
 const Rows = ({ category, expenses }) => {
-  const [open, setOpen] = useState(false);
+  const [openSubRows, setOpenSubRows] = useState(false);
+  const [anchorMoreDropDown, setAnchorMoreDropDown] = useState(null);
+  const openMoreDropDown = Boolean(anchorMoreDropDown);
 
-  const expensesByCateogry = expenses.filter(
+  const expensesByCateogry = expenses?.filter(
     (expense) => expense.category === category
   );
+
   return (
     <>
       {/* header table rows */}
       <TableRow>
         <TableCell size="small" width="20px">
-          <IconButton 
+          <IconButton
             aria-label="expand row"
             size="small"
-            onClick={() => setOpen(!open)}
+            onClick={() => setOpenSubRows(!openSubRows)}
           >
-            {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+            {openSubRows ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
           </IconButton>
         </TableCell>
         <TableCell colSpan={2} align="left">
@@ -47,7 +54,7 @@ const Rows = ({ category, expenses }) => {
       </TableRow>
       <TableRow>
         <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={3}>
-          <Collapse in={open} timeout="auto" unmountOnExit>
+          <Collapse in={openSubRows} timeout="auto" unmountOnExit>
             <Table size="small" aria-label="purchases">
               <TableBody>
                 {/* sub table rows */}
@@ -58,6 +65,33 @@ const Rows = ({ category, expenses }) => {
                     </TableCell>
                     <TableCell align="right">
                       {ccyFormat(expense.amount)}
+                    </TableCell>
+                    <TableCell width="75px" align="right">
+                      <IconButton
+                        id="moreMenuButton"
+                        onClick={(e) => setAnchorMoreDropDown(e.currentTarget)}
+                      >
+                        <MoreHorizIcon />
+                      </IconButton>
+                      <Menu
+                        id="moreMenu"
+                        anchorEl={anchorMoreDropDown}
+                        open={openMoreDropDown}
+                        onClose={() => setAnchorMoreDropDown(null)}
+                        MenuListProps={{
+                          "aria-labelledby": "moreMenuButton",
+                        }}
+                      >
+                        <MenuItem onClick={() => setAnchorMoreDropDown(null)}>
+                          Edit
+                        </MenuItem>
+                        <MenuItem
+                          sx={{ color: "danger.main" }}
+                          onClick={() => setAnchorMoreDropDown(null)}
+                        >
+                          Delete
+                        </MenuItem>
+                      </Menu>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -70,7 +104,12 @@ const Rows = ({ category, expenses }) => {
   );
 };
 
-const ExpenseTable = ({ expenses, expenseTotal, expenseCategories, categories }) => {
+const ExpenseTable = ({
+  expenses,
+  expenseTotal,
+  expenseCategories,
+  categories,
+}) => {
   return (
     <TableContainer component={Paper}>
       <Table sx={{ minWidth: 700 }} aria-label="spanning table">

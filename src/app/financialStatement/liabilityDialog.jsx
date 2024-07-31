@@ -1,7 +1,6 @@
 "use client";
 
 // route imports
-import Link from "next/link";
 import axios from "axios";
 import { useState } from "react";
 import { useForm, Controller } from "react-hook-form";
@@ -26,21 +25,19 @@ import {
   Select,
 } from "@mui/material";
 
-import LaunchIcon from '@mui/icons-material/Launch';
-
-export const AddExpenseButtonDialog = ({ categories }) => {
-  const [openNewExpenseEntry, setOpenNewExpenseEntry] = useState(false);
+export const AddLiabilityButtonDialog = ({ categories }) => {
+  const [openNewLiabilityEntry, setOpenNewLiabilityEntry] = useState(false);
   const { register, handleSubmit, control } = useForm();
   const router = useRouter();
 
-  const onSubmitNewExpense = (formData) => {
-    const { expenseName, expenseCategory, expenseAmount } = formData;
+  const onSubmitNewLiability = (formData) => {
+    const { liabilityName, liabilityCategory, liabilityAmount } = formData;
 
     axios
-      .post(baseURL + "api/expense", {
-        name: expenseName,
-        category: expenseCategory,
-        amount: expenseAmount,
+      .post(baseURL + "api/liability", {
+        name: liabilityName,
+        category: liabilityCategory,
+        amount: liabilityAmount,
       })
       .then((res) => {
         showSnackbar(`Successfully added ${res.data.name}`, "success");
@@ -50,7 +47,7 @@ export const AddExpenseButtonDialog = ({ categories }) => {
         showSnackbar(`error: ${err}`, "error");
       });
 
-    setOpenNewExpenseEntry(!openNewExpenseEntry);
+    setOpenNewLiabilityEntry(false);
   };
 
   return (
@@ -58,49 +55,49 @@ export const AddExpenseButtonDialog = ({ categories }) => {
       <Button
         variant="outlined"
         onClick={() => {
-          setOpenNewExpenseEntry(!openNewExpenseEntry);
+          setOpenNewLiabilityEntry(true);
         }}
       >
-        Add Expense
+        Add Liability
       </Button>
 
       <Dialog
-        open={openNewExpenseEntry}
+        open={openNewLiabilityEntry}
         onClose={() => {
-          setOpenNewExpenseEntry(!openNewExpenseEntry);
+          setOpenNewLiabilityEntry(false);
         }}
       >
-        <form onSubmit={handleSubmit(onSubmitNewExpense)}>
-          <DialogTitle>New Expense Entry</DialogTitle>
+        <form onSubmit={handleSubmit(onSubmitNewLiability)}>
+          <DialogTitle>New Liability Entry</DialogTitle>
           <DialogContent>
             <DialogContentText>
-              Enter expense information below
+              Enter liability information below
             </DialogContentText>
             <Stack gap={2}>
               <FormControl fullWidth variant="standard">
-                <InputLabel htmlFor="expenseName">Name</InputLabel>
-                <Input id="expenseName" {...register("expenseName")} />
+                <InputLabel htmlFor="liabilityName">Name</InputLabel>
+                <Input id="liabilityName" {...register("liabilityName")} />
               </FormControl>
               <FormControl fullWidth variant="standard">
-                <InputLabel htmlFor="expenseAmount">Amount</InputLabel>
+                <InputLabel htmlFor="liabilityAmount">Amount</InputLabel>
                 <Input
-                  id="expenseAmount"
-                  {...register("expenseAmount")}
+                  id="liabilityAmount"
+                  {...register("liabilityAmount")}
                   startAdornment={
                     <InputAdornment position="start">$</InputAdornment>
                   }
                 />
               </FormControl>
               <FormControl variant="standard" fullWidth>
-                <InputLabel id="expenseCategory">Category</InputLabel>
+                <InputLabel id="liabilityCategory">Category</InputLabel>
                 <Controller
-                  name="expenseCategory"
+                  name="liabilityCategory"
                   control={control}
                   defaultValue=""
                   rules={{ required: "This field is required" }}
                   render={({ field }) => (
                     <Select
-                      labelId="expenseCategory"
+                      labelId="liabilityCategory"
                       {...field}
                       value={field.value || ""}
                       onChange={(e) => field.onChange(e.target.value)}
@@ -110,9 +107,6 @@ export const AddExpenseButtonDialog = ({ categories }) => {
                           {category.name}
                         </MenuItem>
                       ))}
-                      <MenuItem>
-                        <Link href="/settings">Add New <LaunchIcon /></Link>
-                      </MenuItem>
                     </Select>
                   )}
                 />
@@ -122,7 +116,7 @@ export const AddExpenseButtonDialog = ({ categories }) => {
           <DialogActions>
             <Button
               onClick={() => {
-                setOpenNewExpenseEntry(!openNewExpenseEntry);
+                setOpenNewIncomeEntry(false);
               }}
             >
               Cancel

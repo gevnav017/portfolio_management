@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-import { AddIncomeButtonDialog } from "./incomeDialog";
+import { AddLiabilityButtonDialog } from "./liabilityDialog";
 import { ccyFormat } from "../lib/component";
 
 // MUI imports
@@ -26,14 +26,15 @@ import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 
-const Rows = ({ category, incomes }) => {
+const Rows = ({ category, liabilities }) => {
   const [openSubRows, setOpenSubRows] = useState(false);
   const [anchorMoreDropDown, setAnchorMoreDropDown] = useState(null);
   const openMoreDropDown = Boolean(anchorMoreDropDown);
 
-  const incomesByCateogry = incomes?.filter(
-    (income) => income.category === category
+  const liabilitiesByCateogry = liabilities?.filter(
+    (liability) => liability.category === category
   );
+  console.log(liabilities)
 
   return (
     <>
@@ -58,13 +59,13 @@ const Rows = ({ category, incomes }) => {
             <Table size="small" aria-label="purchases">
               <TableBody>
                 {/* sub table rows */}
-                {incomesByCateogry?.map((income, idx) => (
+                {liabilitiesByCateogry?.map((liability, idx) => (
                   <TableRow key={idx}>
                     <TableCell component="th" scope="row">
-                      {income.name}
+                      {liability.name}
                     </TableCell>
                     <TableCell align="right">
-                      {ccyFormat(income.amount)}
+                      {ccyFormat(liability.amount)}
                     </TableCell>
                     <TableCell width="75px" align="right">
                       <IconButton
@@ -104,10 +105,10 @@ const Rows = ({ category, incomes }) => {
   );
 };
 
-const IncomeTable = ({
-  incomes,
-  incomeTotal,
-  incomeCategories,
+const LiabilityTable = ({
+  liabilities,
+  liabilityTotal,
+  liabilityCategories,
   categories,
 }) => {
   return (
@@ -116,16 +117,16 @@ const IncomeTable = ({
         <TableHead>
           <TableRow>
             <TableCell>
-              <Typography variant="subtitle1">Income</Typography>
+              <Typography variant="subtitle1">Liability</Typography>
             </TableCell>
             <TableCell align="right">
-              <AddIncomeButtonDialog categories={categories} />
+              <AddLiabilityButtonDialog categories={categories} />
             </TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
-          {[...incomeCategories]?.map((category) => (
-            <Rows key={category} category={category} incomes={incomes} />
+          {[...liabilityCategories]?.map((category) => (
+            <Rows key={category} category={category} liabilities={liabilities} />
           ))}
           {/* table total amount */}
           <TableRow>
@@ -134,7 +135,7 @@ const IncomeTable = ({
             </TableCell>
             <TableCell align="right">
               <Typography variant="subtitle1">
-                {ccyFormat(incomeTotal)}
+                {ccyFormat(liabilityTotal)}
               </Typography>
             </TableCell>
           </TableRow>
@@ -144,4 +145,4 @@ const IncomeTable = ({
   );
 };
 
-export default IncomeTable;
+export default LiabilityTable;

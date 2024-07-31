@@ -1,9 +1,9 @@
-import db from "../../db/db";
+import React from 'react'
 
-const page = async () => {
-  const result = await db.asset.findMany();
+const Home = () => {
+  return (
+    <div>Home</div>
+  )
+}
 
-  return <>{result?.map((item) => item.amount)}</>;
-};
-
-export default page;
+export default Home
