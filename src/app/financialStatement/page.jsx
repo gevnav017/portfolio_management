@@ -1,6 +1,11 @@
-// file imports
-import { AddAssetButtonDialog } from "./assets";
-import db from "../../../db/db";
+// route imports
+import { GetCategories } from "../api/category/route";
+import { GetIncomes } from "../api/income/route";
+import { GetExpenses } from "../api/expense/route";
+
+import IncomeTable from "./incomeTable";
+import ExpenseTable from "./expenseTable";
+
 // MUI imports
 import {
   Stack,
@@ -17,34 +22,13 @@ import {
 } from "@mui/material";
 
 const FinancialStatement = async () => {
-  const TAX_RATE = 0.07;
+  const { categories } = await GetCategories();
 
-  function ccyFormat(num) {
-    return `${num.toFixed(2)}`;
-  }
+  const { incomes, incomeTotal, incomeCategories } = await GetIncomes();
+  const formattedIncomes = JSON.parse(JSON.stringify(incomes));
 
-  function priceRow(qty, unit) {
-    return qty * unit;
-  }
-
-  function createRow(desc, qty, unit) {
-    const price = priceRow(qty, unit);
-    return { desc, qty, unit, price };
-  }
-
-  function subtotal(items) {
-    return items.map(({ price }) => price).reduce((sum, i) => sum + i, 0);
-  }
-
-  const rows = [
-    createRow("Paperclips (Box)", 100, 1.15),
-    createRow("Paper (Case)", 10, 45.99),
-    createRow("Waste Basket", 2, 17.99),
-  ];
-
-  const invoiceSubtotal = subtotal(rows);
-
-  const assets = await db.asset.findMany();
+  const { expenses, expenseTotal, expenseCategories } = await GetExpenses();
+  const formattedExpenses = JSON.parse(JSON.stringify(expenses));
 
   return (
     <Stack spacing={3}>
@@ -59,80 +43,22 @@ const FinancialStatement = async () => {
         <Stack spacing={3} p={2}>
           {/* income table */}
           <Stack>
-            <TableContainer component={Paper}>
-              <Table sx={{ minWidth: 700 }} aria-label="spanning table">
-                <TableHead>
-                  <TableRow>
-                    <TableCell>
-                      <Typography variant="subtitle1">Income</Typography>
-                    </TableCell>
-                    <TableCell align="right">
-                      <AddAssetButtonDialog />
-                    </TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {assets?.map((asset) => (
-                    <TableRow key={asset.id}>
-                      <TableCell>
-                        {asset.desc}
-                      </TableCell>
-                      <TableCell align="right">
-                        ${ccyFormat(asset.amount)}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                  <TableRow>
-                    <TableCell>
-                      <Typography variant="subtitle1">Total</Typography>
-                    </TableCell>
-                    <TableCell align="right">
-                      <Typography variant="subtitle1">
-                        ${ccyFormat(invoiceSubtotal)}
-                      </Typography>
-                    </TableCell>
-                  </TableRow>
-                </TableBody>
-              </Table>
-            </TableContainer>
+            <IncomeTable
+              incomes={formattedIncomes}
+              incomeTotal={incomeTotal}
+              incomeCategories={incomeCategories}
+              categories={categories}
+            />
           </Stack>
 
           {/* expense table */}
           <Stack>
-            <TableContainer component={Paper}>
-              <Table sx={{ minWidth: 700 }} aria-label="spanning table">
-                <TableHead>
-                  <TableRow>
-                    <TableCell>
-                      <Typography variant="subtitle1">Expense</Typography>
-                    </TableCell>
-                    <TableCell align="right">
-                      <Button variant="outlined">Add Expense</Button>
-                    </TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {rows.map((row) => (
-                    <TableRow key={row.desc}>
-                      <TableCell>Auto Loan</TableCell>
-                      <TableCell align="right">
-                        ${ccyFormat(row.price)}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                  <TableRow>
-                    <TableCell>
-                      <Typography variant="subtitle1">Total</Typography>
-                    </TableCell>
-                    <TableCell align="right">
-                      <Typography variant="subtitle1">
-                        ${ccyFormat(invoiceSubtotal)}
-                      </Typography>
-                    </TableCell>
-                  </TableRow>
-                </TableBody>
-              </Table>
-            </TableContainer>
+            <ExpenseTable
+              expenses={formattedExpenses}
+              expenseTotal={expenseTotal}
+              expenseCategories={expenseCategories}
+              categories={categories}
+            />
           </Stack>
         </Stack>
 
@@ -145,65 +71,31 @@ const FinancialStatement = async () => {
                 Increase Passive Income to Escape the Rat Race
               </Typography>
             </Stack>
-            <Card
-              sx={{
-                display: "flex",
-                justifyContent: "space-between",
-                p: 1,
-              }}
-            >
-              <Typography variant="subtitle1">Total Expense</Typography>
-              <Typography variant="subtitle1">$100</Typography>
-            </Card>
-            <Card
-              sx={{
-                display: "flex",
-                justifyContent: "space-between",
-                p: 1,
-              }}
-            >
-              <Typography variant="subtitle1">Bar Chart</Typography>
-              <Typography variant="subtitle1">$100</Typography>
-            </Card>
-            <Card
-              sx={{
-                display: "flex",
-                justifyContent: "space-between",
-                p: 1,
-              }}
-            >
-              <Typography variant="subtitle1">Cash</Typography>
-              <Typography variant="subtitle1">$100</Typography>
-            </Card>
-            <Card
-              sx={{
-                display: "flex",
-                justifyContent: "space-between",
-                p: 1,
-              }}
-            >
-              <Typography variant="subtitle1">Passive Income</Typography>
-              <Typography variant="subtitle1">$100</Typography>
-            </Card>
-            <Card
-              sx={{
-                display: "flex",
-                justifyContent: "space-between",
-                p: 1,
-              }}
-            >
-              <Typography variant="subtitle1">Total Income</Typography>
-              <Typography variant="subtitle1">$100</Typography>
-            </Card>
-            <Card
-              sx={{
-                display: "flex",
-                justifyContent: "space-between",
-                p: 1,
-              }}
-            >
-              <Typography variant="subtitle1">PAYDAY</Typography>
-              <Typography variant="subtitle1">$100</Typography>
+            <Card>
+              <Stack direction="row" justifyContent="space-between" p={2}>
+                <Typography variant="subtitle1">Total Expense</Typography>
+                <Typography variant="subtitle1">$100</Typography>
+              </Stack>
+              <Stack direction="row" justifyContent="space-between" p={2}>
+                <Typography variant="subtitle1">Bar Chart</Typography>
+                <Typography variant="subtitle1">$100</Typography>
+              </Stack>
+              <Stack direction="row" justifyContent="space-between" p={2}>
+                <Typography variant="subtitle1">Cash</Typography>
+                <Typography variant="subtitle1">$100</Typography>
+              </Stack>
+              <Stack direction="row" justifyContent="space-between" p={2}>
+                <Typography variant="subtitle1">Passive Income</Typography>
+                <Typography variant="subtitle1">$100</Typography>
+              </Stack>
+              <Stack direction="row" justifyContent="space-between" p={2}>
+                <Typography variant="subtitle1">Total Income</Typography>
+                <Typography variant="subtitle1">$100</Typography>
+              </Stack>
+              <Stack direction="row" justifyContent="space-between" p={2}>
+                <Typography variant="subtitle1">PAYDAY</Typography>
+                <Typography variant="subtitle1">$100</Typography>
+              </Stack>
             </Card>
           </Stack>
           {/* assets table */}
@@ -221,21 +113,21 @@ const FinancialStatement = async () => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {rows.map((row) => (
+                  {/* {assets.map((row) => (
                     <TableRow key={row.desc}>
                       <TableCell>Cash</TableCell>
                       <TableCell align="right">
-                        ${ccyFormat(row.price)}
+                        ${ccyFormat(row.amount)}
                       </TableCell>
                     </TableRow>
-                  ))}
+                  ))} */}
                   <TableRow>
                     <TableCell>
                       <Typography variant="subtitle1">Total</Typography>
                     </TableCell>
                     <TableCell align="right">
                       <Typography variant="subtitle1">
-                        ${ccyFormat(invoiceSubtotal)}
+                        {/* ${ccyFormat(assetTotal)} */}
                       </Typography>
                     </TableCell>
                   </TableRow>
@@ -258,21 +150,21 @@ const FinancialStatement = async () => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {rows.map((row) => (
+                  {/* {assets.map((row) => (
                     <TableRow key={row.desc}>
                       <TableCell>Auto Loan</TableCell>
                       <TableCell align="right">
-                        ${ccyFormat(row.price)}
+                        ${ccyFormat(row.amount)}
                       </TableCell>
                     </TableRow>
-                  ))}
+                  ))} */}
                   <TableRow>
                     <TableCell>
                       <Typography variant="subtitle1">Total</Typography>
                     </TableCell>
                     <TableCell align="right">
                       <Typography variant="subtitle1">
-                        ${ccyFormat(invoiceSubtotal)}
+                        {/* ${ccyFormat(assetTotal)} */}
                       </Typography>
                     </TableCell>
                   </TableRow>

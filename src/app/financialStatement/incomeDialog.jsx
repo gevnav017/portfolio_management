@@ -1,30 +1,53 @@
 "use client";
 
+// route imports
+import axios from "axios";
 import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
+import { baseURL } from "../lib/component";
+import { showSnackbar } from "../lib/snackbar";
+import { useRouter } from "next/navigation";
 
-import { Stack, InputLabel, Input, InputAdornment } from "@mui/material";
-import Button from "@mui/material/Button";
-import Dialog from "@mui/material/Dialog";
-import DialogActions from "@mui/material/DialogActions";
-import DialogContent from "@mui/material/DialogContent";
-import DialogContentText from "@mui/material/DialogContentText";
-import DialogTitle from "@mui/material/DialogTitle";
-import MenuItem from "@mui/material/MenuItem";
-import FormControl from "@mui/material/FormControl";
-import Select from "@mui/material/Select";
+// MUI imports
+import {
+  Stack,
+  InputLabel,
+  Input,
+  InputAdornment,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  MenuItem,
+  FormControl,
+  Select,
+} from "@mui/material";
 
-// const [openNewIncomeEntry, setOpenNewIncomeEntry] = useState(false);
-// const { register, handleSubmit } = useForm();
-
-// const fetcher = url => fetch(url).then(res => res.json())
-
-export const AddAssetButtonDialog = () => {
+export const AddIncomeButtonDialog = ({ categories }) => {
   const [openNewIncomeEntry, setOpenNewIncomeEntry] = useState(false);
-  const { register, handleSubmit } = useForm();
+  const { register, handleSubmit, control } = useForm();
+  const router = useRouter();
+
+  // const { data, error, isLoading } = useSWR(baseURL + "api/asset", fetcher);
 
   const onSubmitNewIncome = (formData) => {
-    console.log(formData);
+    const { incomeName, incomeCategory, incomeAmount } = formData;
+
+    axios
+      .post(baseURL + "api/income", {
+        name: incomeName,
+        category: incomeCategory,
+        amount: incomeAmount,
+      })
+      .then((res) => {
+        showSnackbar(`Successfully added ${res.data.name}`, "success");
+      })
+      .finally(router.refresh("/financialStatement"))
+      .catch((err) => {
+        showSnackbar(`error: ${err}`, "error");
+      });
 
     setOpenNewIncomeEntry(false);
   };
@@ -69,14 +92,26 @@ export const AddAssetButtonDialog = () => {
               </FormControl>
               <FormControl variant="standard" fullWidth>
                 <InputLabel id="incomeCategory">Category</InputLabel>
-                <Select
-                  labelId="incomeCategory"
-                  value={"test"}
-                  {...register("incomeCategory")}
-                  onChange={() => {}}
-                >
-                  <MenuItem value={"test"}>Salary</MenuItem>
-                </Select>
+                <Controller
+                  name="incomeCategory"
+                  control={control}
+                  defaultValue=""
+                  rules={{ required: "This field is required" }}
+                  render={({ field }) => (
+                    <Select
+                      labelId="incomeCategory"
+                      {...field}
+                      value={field.value || ""}
+                      onChange={(e) => field.onChange(e.target.value)}
+                    >
+                      {categories?.map((category) => (
+                        <MenuItem key={category.name} value={category.name}>
+                          {category.name}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  )}
+                />
               </FormControl>
             </Stack>
           </DialogContent>
