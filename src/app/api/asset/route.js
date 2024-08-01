@@ -3,7 +3,7 @@
 import { NextResponse } from "next/server";
 import db from "../../../../db/db";
 
-// get assets component
+// get assets
 export async function getAssets() {
   try {
     const assets = await db.asset.findMany();
@@ -24,7 +24,7 @@ export async function getAssets() {
   }
 }
 
-// post add new asset component
+// post add new asset
 export async function POST(req) {
   try {
     const data = await req.json();

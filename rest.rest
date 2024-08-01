@@ -8,3 +8,12 @@ content-type: application/json
 {
     "cname": "weile"
 }
+
+###
+
+DELETE http://localhost:3000/api/liability
+content-type: application/json
+
+{
+    "id": "850d8e98-629b-4f77-9428-8b400f4bb5c6"
+}

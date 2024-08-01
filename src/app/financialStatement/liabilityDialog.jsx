@@ -116,7 +116,7 @@ export const AddLiabilityButtonDialog = ({ categories }) => {
           <DialogActions>
             <Button
               onClick={() => {
-                setOpenNewIncomeEntry(false);
+                setOpenNewLiabilityEntry(false);
               }}
             >
               Cancel
@@ -126,6 +126,68 @@ export const AddLiabilityButtonDialog = ({ categories }) => {
             </Button>
           </DialogActions>
         </form>
+      </Dialog>
+    </>
+  );
+};
+
+export const DeleteLiabilityDialog = ({
+  liability,
+  openDeleteDialog,
+  setOpenDeleteDialog,
+}) => {
+  const router = useRouter();
+
+  const handleDeleteLiability = (liabilityId) => {
+    axios
+      .delete(baseURL + "api/liability", {
+        liabilityId
+      })
+      .then((res) => {
+        showSnackbar(`Successfully deleted ${res.data.name}`, "success");
+      })
+      .finally(router.refresh("/financialStatement"))
+      .catch((err) => {
+        showSnackbar(`error: ${err}`, "error");
+      });
+
+    setOpenDeleteDialog(false);
+  };
+
+  return (
+    <>
+      <Dialog
+        open={openDeleteDialog}
+        onClose={() => {
+          setOpenDeleteDialog(false);
+        }}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle>Confirm Delete</DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            {`Are you sure you want to delete ${liability?.name}?`}
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button
+            onClick={() => {
+              setOpenDeleteDialog(false);
+            }}
+          >
+            Cancel
+          </Button>
+          <Button
+            variant="contained"
+            color="danger"
+            onClick={() => {
+              handleDeleteLiability(liability.id);
+            }}
+          >
+            Yes
+          </Button>
+        </DialogActions>
       </Dialog>
     </>
   );

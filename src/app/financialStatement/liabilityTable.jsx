@@ -3,6 +3,8 @@
 import { useState } from "react";
 
 import { AddLiabilityButtonDialog } from "./liabilityDialog";
+import { DeleteLiabilityDialog } from "./liabilityDialog";
+
 import { ccyFormat } from "../lib/component";
 
 // MUI imports
@@ -28,13 +30,16 @@ import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 
 const Rows = ({ category, liabilities }) => {
   const [openSubRows, setOpenSubRows] = useState(false);
+
   const [anchorMoreDropDown, setAnchorMoreDropDown] = useState(null);
   const openMoreDropDown = Boolean(anchorMoreDropDown);
+
+  const [deleteLiabilityEl, setDeleteLiabilityEl] = useState(null);
+  const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
 
   const liabilitiesByCateogry = liabilities?.filter(
     (liability) => liability.category === category
   );
-  console.log(liabilities)
 
   return (
     <>
@@ -59,8 +64,8 @@ const Rows = ({ category, liabilities }) => {
             <Table size="small" aria-label="purchases">
               <TableBody>
                 {/* sub table rows */}
-                {liabilitiesByCateogry?.map((liability, idx) => (
-                  <TableRow key={idx}>
+                {liabilitiesByCateogry?.map((liability) => (
+                  <TableRow key={liability.id}>
                     <TableCell component="th" scope="row">
                       {liability.name}
                     </TableCell>
@@ -70,7 +75,10 @@ const Rows = ({ category, liabilities }) => {
                     <TableCell width="75px" align="right">
                       <IconButton
                         id="moreMenuButton"
-                        onClick={(e) => setAnchorMoreDropDown(e.currentTarget)}
+                        onClick={(e) => {
+                          setAnchorMoreDropDown(e.currentTarget);
+                          setDeleteLiabilityEl(liability);
+                        }}
                       >
                         <MoreHorizIcon />
                       </IconButton>
@@ -88,11 +96,19 @@ const Rows = ({ category, liabilities }) => {
                         </MenuItem>
                         <MenuItem
                           sx={{ color: "danger.main" }}
-                          onClick={() => setAnchorMoreDropDown(null)}
+                          onClick={() => {
+                            setAnchorMoreDropDown(null);
+                            setOpenDeleteDialog(!openDeleteDialog);
+                          }}
                         >
                           Delete
                         </MenuItem>
                       </Menu>
+                      <DeleteLiabilityDialog
+                        liability={deleteLiabilityEl}
+                        openDeleteDialog={openDeleteDialog}
+                        setOpenDeleteDialog={setOpenDeleteDialog}
+                      />
                     </TableCell>
                   </TableRow>
                 ))}
@@ -126,7 +142,11 @@ const LiabilityTable = ({
         </TableHead>
         <TableBody>
           {[...liabilityCategories]?.map((category) => (
-            <Rows key={category} category={category} liabilities={liabilities} />
+            <Rows
+              key={category}
+              category={category}
+              liabilities={liabilities}
+            />
           ))}
           {/* table total amount */}
           <TableRow>

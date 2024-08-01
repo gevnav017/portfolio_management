@@ -3,6 +3,7 @@
 import { NextResponse } from "next/server";
 import db from "../../../../db/db";
 
+// get expenses
 export async function getExpenses() {
   try {
     const expenses = await db.expense.findMany();
@@ -25,7 +26,7 @@ export async function getExpenses() {
   }
 }
 
-// post add new income component
+// post add new expense
 export async function POST(req) {
   try {
     const data = await req.json();

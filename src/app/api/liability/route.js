@@ -3,22 +3,22 @@
 import { NextResponse } from "next/server";
 import db from "../../../../db/db";
 
-// get liablities component
+// get liabilities
 export async function getLiabilities() {
   try {
-    const liablities = await db.liability.findMany();
+    const liabilities = await db.liability.findMany();
 
-    const liabilityTotal = liablities.reduce(
+    const liabilityTotal = liabilities.reduce(
       (acc, liability) => acc + parseFloat(liability.amount),
       0
     );
 
     const uniqueCategories = [
-      new Set(liablities.map((liability) => liability.category)),
+      new Set(liabilities.map((liability) => liability.category)),
     ];
     const liabilityCategories = uniqueCategories[0];
 
-    return { liablities, liabilityTotal, liabilityCategories };
+    return { liabilities, liabilityTotal, liabilityCategories };
   } catch (err) {
     return { error: err };
   } finally {
@@ -26,13 +26,33 @@ export async function getLiabilities() {
   }
 }
 
-// post add new liability component
+// post add new liability
 export async function POST(req) {
   try {
     const data = await req.json();
 
     const liability = await db.liability.create({
       data,
+    });
+
+    return NextResponse.json(liability);
+  } catch (err) {
+    return NextResponse.json(err);
+  } finally {
+    db.$disconnect();
+  }
+}
+
+// delete liability
+export async function DELETE(req) {
+  try {
+    const data = await req.json();
+    console.log(data)
+
+    const liability = await db.liability.delete({
+      where: {
+        id: data.id
+      },
     });
 
     return NextResponse.json(liability);

@@ -32,7 +32,6 @@ const FinancialStatement = async () => {
   const { liabilities, liabilityTotal, liabilityCategories } =
     await getLiabilities();
   const formattedLiabilities = JSON.parse(JSON.stringify(liabilities) || null);
-  console.log(liabilities)
 
   return (
     <Stack spacing={3}>
