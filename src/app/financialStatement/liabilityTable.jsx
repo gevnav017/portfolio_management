@@ -4,6 +4,7 @@ import { useState } from "react";
 
 import { AddLiabilityButtonDialog } from "./liabilityDialog";
 import { DeleteLiabilityDialog } from "./liabilityDialog";
+import { UpdateLiabilityDialog } from "./liabilityDialog";
 
 import { ccyFormat } from "../lib/component";
 
@@ -28,13 +29,14 @@ import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 
-const Rows = ({ category, liabilities }) => {
+const Rows = ({ category, categories, liabilities }) => {
   const [openSubRows, setOpenSubRows] = useState(false);
 
   const [anchorMoreDropDown, setAnchorMoreDropDown] = useState(null);
   const openMoreDropDown = Boolean(anchorMoreDropDown);
+  const [editLiabilityData, setEditLiabilityData] = useState(null);
 
-  const [deleteLiabilityEl, setDeleteLiabilityEl] = useState(null);
+  const [openUpdateDialog, setOpenUpdateDialog] = useState(false);
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
 
   const liabilitiesByCateogry = liabilities?.filter(
@@ -77,7 +79,7 @@ const Rows = ({ category, liabilities }) => {
                         id="moreMenuButton"
                         onClick={(e) => {
                           setAnchorMoreDropDown(e.currentTarget);
-                          setDeleteLiabilityEl(liability);
+                          setEditLiabilityData(liability);
                         }}
                       >
                         <MoreHorizIcon />
@@ -91,7 +93,12 @@ const Rows = ({ category, liabilities }) => {
                           "aria-labelledby": "moreMenuButton",
                         }}
                       >
-                        <MenuItem onClick={() => setAnchorMoreDropDown(null)}>
+                        <MenuItem
+                          onClick={() => {
+                            setAnchorMoreDropDown(null);
+                            setOpenUpdateDialog(!openUpdateDialog);
+                          }}
+                        >
                           Edit
                         </MenuItem>
                         <MenuItem
@@ -104,8 +111,14 @@ const Rows = ({ category, liabilities }) => {
                           Delete
                         </MenuItem>
                       </Menu>
+                      <UpdateLiabilityDialog
+                        categories={categories}
+                        liability={editLiabilityData}
+                        openUpdateDialog={openUpdateDialog}
+                        setOpenUpdateDialog={setOpenUpdateDialog}
+                      />
                       <DeleteLiabilityDialog
-                        liability={deleteLiabilityEl}
+                        liability={editLiabilityData}
                         openDeleteDialog={openDeleteDialog}
                         setOpenDeleteDialog={setOpenDeleteDialog}
                       />
@@ -145,6 +158,7 @@ const LiabilityTable = ({
             <Rows
               key={category}
               category={category}
+              categories={categories}
               liabilities={liabilities}
             />
           ))}

@@ -131,6 +131,113 @@ export const AddLiabilityButtonDialog = ({ categories }) => {
   );
 };
 
+export const UpdateLiabilityDialog = ({
+  liability,
+  categories,
+  openUpdateDialog,
+  setOpenUpdateDialog,
+}) => {
+  console.log(liability)
+  const { register, handleSubmit, control } = useForm(  {
+    defaultValues: {
+      liabilityName: liability?.name,
+      liabilityCategory: liability?.category,
+      liabilityAmount: liability?.amount,
+    },
+  });
+
+  const router = useRouter();
+
+  const handleUpdateLiability = (formData) => {
+    const { liabilityName, liabilityCategory, liabilityAmount } = formData;
+
+    axios
+      .put(`${baseURL}/api/liability`, {
+        name: liabilityName,
+        category: liabilityCategory,
+        amount: liabilityAmount,
+      })
+      .then((res) => {
+        showSnackbar(`Successfully updated ${res.data.name}`, "success");
+      })
+      .finally(router.refresh("/financialStatement"))
+      .catch((err) => {
+        showSnackbar(`error: ${err}`, "error");
+      });
+
+    setOpenUpdateDialog(!openUpdateDialog);
+  };
+
+  return (
+    <Dialog
+      open={openUpdateDialog}
+      onClose={() => {
+        setOpenUpdateDialog(!openUpdateDialog);
+      }}
+    >
+      <form onSubmit={handleSubmit(handleUpdateLiability)}>
+        <DialogTitle>Update Liability</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Enter liability information below
+          </DialogContentText>
+          <Stack gap={2}>
+            <FormControl fullWidth variant="standard">
+              <InputLabel htmlFor="liabilityName">Name</InputLabel>
+              <Input id="liabilityName" {...register("liabilityName")} />
+            </FormControl>
+            <FormControl fullWidth variant="standard">
+              <InputLabel htmlFor="liabilityAmount">Amount</InputLabel>
+              <Input
+                id="liabilityAmount"
+                {...register("liabilityAmount")}
+                startAdornment={
+                  <InputAdornment position="start">$</InputAdornment>
+                }
+              />
+            </FormControl>
+            <FormControl variant="standard" fullWidth>
+              <InputLabel id="liabilityCategory">Category</InputLabel>
+              <Controller
+                name="liabilityCategory"
+                control={control}
+                defaultValue=""
+                rules={{ required: "This field is required" }}
+                render={({ field }) => (
+                  <Select
+                    labelId="liabilityCategory"
+                    {...field}
+                    value={field.value || ""}
+                    onChange={(e) => field.onChange(e.target.value)}
+                  >
+                    {categories?.map((category) => (
+                      <MenuItem key={category.name} value={category.name}>
+                        {category.name}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                )}
+              />
+            </FormControl>
+          </Stack>
+        </DialogContent>
+        <DialogActions>
+          <Button
+            onClick={() => {
+              setOpenUpdateDialog(!openUpdateDialog);
+            }}
+          >
+            Cancel
+          </Button>
+          <Button type="submit" variant="contained">
+            Update
+          </Button>
+        </DialogActions>
+      </form>
+    </Dialog>
+  );
+};
+
 export const DeleteLiabilityDialog = ({
   liability,
   openDeleteDialog,
@@ -183,7 +290,7 @@ export const DeleteLiabilityDialog = ({
               handleDeleteLiability(liability.id);
             }}
           >
-            Yes
+            Delete
           </Button>
         </DialogActions>
       </Dialog>
