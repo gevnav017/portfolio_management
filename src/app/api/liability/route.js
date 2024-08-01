@@ -42,23 +42,3 @@ export async function POST(req) {
     db.$disconnect();
   }
 }
-
-// delete liability
-export async function DELETE(req) {
-  try {
-    const data = await req.json();
-    console.log(data)
-
-    const liability = await db.liability.delete({
-      where: {
-        id: data.id
-      },
-    });
-
-    return NextResponse.json(liability);
-  } catch (err) {
-    return NextResponse.json(err);
-  } finally {
-    db.$disconnect();
-  }
-}

@@ -36,7 +36,7 @@ export const AddAssetButtonDialog = ({ categories }) => {
     const { assetName, assetCategory, assetAmount } = formData;
 
     axios
-      .post(baseURL + "api/asset", {
+      .post(`${baseURL}/api/asset`, {
         name: assetName,
         category: assetCategory,
         amount: assetAmount,

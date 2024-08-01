@@ -36,7 +36,7 @@ export const AddIncomeButtonDialog = ({ categories }) => {
     const { incomeName, incomeCategory, incomeAmount } = formData;
 
     axios
-      .post(baseURL + "api/income", {
+      .post(`${baseURL}/api/income`, {
         name: incomeName,
         category: incomeCategory,
         amount: incomeAmount,

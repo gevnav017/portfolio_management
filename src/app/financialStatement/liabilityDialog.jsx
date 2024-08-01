@@ -34,7 +34,7 @@ export const AddLiabilityButtonDialog = ({ categories }) => {
     const { liabilityName, liabilityCategory, liabilityAmount } = formData;
 
     axios
-      .post(baseURL + "api/liability", {
+      .post(`${baseURL}/api/liability`, {
         name: liabilityName,
         category: liabilityCategory,
         amount: liabilityAmount,
@@ -140,9 +140,7 @@ export const DeleteLiabilityDialog = ({
 
   const handleDeleteLiability = (liabilityId) => {
     axios
-      .delete(baseURL + "api/liability", {
-        liabilityId
-      })
+      .delete(`${baseURL}/api/liability/${liabilityId}`)
       .then((res) => {
         showSnackbar(`Successfully deleted ${res.data.name}`, "success");
       })

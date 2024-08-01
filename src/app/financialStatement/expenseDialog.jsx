@@ -37,7 +37,7 @@ export const AddExpenseButtonDialog = ({ categories }) => {
     const { expenseName, expenseCategory, expenseAmount } = formData;
 
     axios
-      .post(baseURL + "api/expense", {
+      .post(`${baseURL}/api/expense`, {
         name: expenseName,
         category: expenseCategory,
         amount: expenseAmount,
