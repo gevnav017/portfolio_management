@@ -137,14 +137,7 @@ export const UpdateLiabilityDialog = ({
   openUpdateDialog,
   setOpenUpdateDialog,
 }) => {
-  console.log(liability)
-  const { register, handleSubmit, control } = useForm(  {
-    defaultValues: {
-      liabilityName: liability?.name,
-      liabilityCategory: liability?.category,
-      liabilityAmount: liability?.amount,
-    },
-  });
+  const { register, handleSubmit, control } = useForm();
 
   const router = useRouter();
 
@@ -152,7 +145,7 @@ export const UpdateLiabilityDialog = ({
     const { liabilityName, liabilityCategory, liabilityAmount } = formData;
 
     axios
-      .put(`${baseURL}/api/liability`, {
+      .put(`${baseURL}/api/liability/${liability?.id}`, {
         name: liabilityName,
         category: liabilityCategory,
         amount: liabilityAmount,
@@ -184,12 +177,17 @@ export const UpdateLiabilityDialog = ({
           <Stack gap={2}>
             <FormControl fullWidth variant="standard">
               <InputLabel htmlFor="liabilityName">Name</InputLabel>
-              <Input id="liabilityName" {...register("liabilityName")} />
+              <Input
+                id="liabilityName"
+                defaultValue={liability?.name}
+                {...register("liabilityName")}
+              />
             </FormControl>
             <FormControl fullWidth variant="standard">
               <InputLabel htmlFor="liabilityAmount">Amount</InputLabel>
               <Input
                 id="liabilityAmount"
+                defaultValue={liability?.amount}
                 {...register("liabilityAmount")}
                 startAdornment={
                   <InputAdornment position="start">$</InputAdornment>
@@ -201,7 +199,7 @@ export const UpdateLiabilityDialog = ({
               <Controller
                 name="liabilityCategory"
                 control={control}
-                defaultValue=""
+                defaultValue={liability?.category}
                 rules={{ required: "This field is required" }}
                 render={({ field }) => (
                   <Select

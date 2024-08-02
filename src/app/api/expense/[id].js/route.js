@@ -3,18 +3,18 @@
 import { NextResponse } from "next/server";
 import db from "../../../../../db/db";
 
-// delete liability
+// delete expense
 export async function DELETE(req, { params }) {
   try {
     const { id } = params;
 
-    const deleteLiability = await db.liability.delete({
+    const deleteExpense = await db.expense.delete({
       where: {
         id,
       },
     });
 
-    return NextResponse.json(deleteLiability);
+    return NextResponse.json(deleteExpense);
   } catch (err) {
     return NextResponse.json(err);
   } finally {
@@ -22,20 +22,20 @@ export async function DELETE(req, { params }) {
   }
 }
 
-// update liability
+// update expense
 export async function PUT(req, { params }) {
   try {
     const { id } = params;
     const data = await req.json();
 
-    const updateLiability = await db.liability.update({
+    const updateExpense = await db.expense.update({
       where: {
         id: id,
       },
       data: data,
     });
 
-    return NextResponse.json(updateLiability);
+    return NextResponse.json(updateExpense);
   } catch (err) {
     return NextResponse.json(err);
   } finally {
