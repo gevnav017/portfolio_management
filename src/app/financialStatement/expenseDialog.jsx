@@ -33,7 +33,7 @@ export const AddExpenseButtonDialog = ({ categories }) => {
   const { register, handleSubmit, control } = useForm();
   const router = useRouter();
 
-  const onSubmitNewExpense = (formData) => {
+  const handleAddExpense = (formData) => {
     const { expenseName, expenseCategory, expenseAmount } = formData;
 
     axios
@@ -45,7 +45,7 @@ export const AddExpenseButtonDialog = ({ categories }) => {
       .then((res) => {
         showSnackbar(`Successfully added ${res.data.name}`, "success");
       })
-      .finally(router.refresh("/financialStatement"))
+      .finally(router.refresh("/financialStatement/expenseTable"))
       .catch((err) => {
         showSnackbar(`error: ${err}`, "error");
       });
@@ -70,7 +70,7 @@ export const AddExpenseButtonDialog = ({ categories }) => {
           setOpenNewExpenseEntry(!openNewExpenseEntry);
         }}
       >
-        <form onSubmit={handleSubmit(onSubmitNewExpense)}>
+        <form onSubmit={handleSubmit(handleAddExpense)}>
           <DialogTitle>New Expense Entry</DialogTitle>
           <DialogContent>
             <DialogContentText>

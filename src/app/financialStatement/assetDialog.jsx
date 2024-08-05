@@ -32,7 +32,7 @@ export const AddAssetButtonDialog = ({ categories }) => {
 
   // const { data, error, isLoading } = useSWR(baseURL + "api/asset", fetcher);
 
-  const onSubmitNewAsset = (formData) => {
+  const handleAddAsset = (formData) => {
     const { assetName, assetCategory, assetAmount } = formData;
 
     axios
@@ -44,7 +44,7 @@ export const AddAssetButtonDialog = ({ categories }) => {
       .then((res) => {
         showSnackbar(`Successfully added ${res.data.name}`, "success");
       })
-      .finally(router.refresh("/financialStatement"))
+      .finally(router.refresh("/financialStatement/assetTable"))
       .catch((err) => {
         showSnackbar(`error: ${err}`, "error");
       });
@@ -69,7 +69,7 @@ export const AddAssetButtonDialog = ({ categories }) => {
           setOpenNewAssetEntry(false);
         }}
       >
-        <form onSubmit={handleSubmit(onSubmitNewAsset)}>
+        <form onSubmit={handleSubmit(handleAddAsset)}>
           <DialogTitle>New Asset Entry</DialogTitle>
           <DialogContent>
             <DialogContentText>

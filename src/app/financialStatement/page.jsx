@@ -10,12 +10,10 @@ import ExpenseTable from "./expenseTable";
 import AssetTable from "./assetTable";
 import LiabilityTable from "./liabilityTable";
 
+import { ccyFormat } from "../lib/component";
+
 // MUI imports
-import {
-  Stack,
-  Card,
-  Typography,
-} from "@mui/material";
+import { Stack, Card, Typography, Box } from "@mui/material";
 
 const FinancialStatement = async () => {
   const { categories } = await getCategories();
@@ -77,11 +75,12 @@ const FinancialStatement = async () => {
             <Card>
               <Stack direction="row" justifyContent="space-between" p={2}>
                 <Typography variant="subtitle1">Total Expense</Typography>
-                <Typography variant="subtitle1">$100</Typography>
+                <Typography variant="subtitle1">
+                  {ccyFormat(expenseTotal)}
+                </Typography>
               </Stack>
-              <Stack direction="row" justifyContent="space-between" p={2}>
-                <Typography variant="subtitle1">Bar Chart</Typography>
-                <Typography variant="subtitle1">$100</Typography>
+              <Stack direction="row" justifyContent="center" p={2}>
+                <Box>bar chart</Box>
               </Stack>
               <Stack direction="row" justifyContent="space-between" p={2}>
                 <Typography variant="subtitle1">Cash</Typography>
@@ -93,11 +92,15 @@ const FinancialStatement = async () => {
               </Stack>
               <Stack direction="row" justifyContent="space-between" p={2}>
                 <Typography variant="subtitle1">Total Income</Typography>
-                <Typography variant="subtitle1">$100</Typography>
+                <Typography variant="subtitle1">
+                  {ccyFormat(incomeTotal)}
+                </Typography>
               </Stack>
               <Stack direction="row" justifyContent="space-between" p={2}>
                 <Typography variant="subtitle1">PAYDAY</Typography>
-                <Typography variant="subtitle1">$100</Typography>
+                <Typography variant="subtitle1">
+                  {ccyFormat(incomeTotal - expenseTotal)}
+                </Typography>
               </Stack>
             </Card>
           </Stack>

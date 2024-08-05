@@ -25,11 +25,10 @@ const ListMenu = ({ categories }) => {
     <Stack
       direction="row"
       justifyContent="space-between"
-      border="solid red"
       minHeight="100vh"
     >
       {/* side menu */}
-      <Stack sx={{ width: "30%", minWidth: 160 }} border="solid green">
+      <Stack sx={{ width: "20%", p: 3, minWidth: 160 }}>
         <List
           sx={{ width: "100%", bgcolor: "background.paper" }}
           component="nav"
@@ -55,7 +54,7 @@ const ListMenu = ({ categories }) => {
       </Stack>
 
       {/* main section */}
-      <Stack sx={{ flexGrow: 1 }} border="solid black">
+      <Stack sx={{ flexGrow: 1 }}>
         {menuItemSelected
           ? menuItems?.map(
               (menuItem) =>

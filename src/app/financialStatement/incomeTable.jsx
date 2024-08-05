@@ -3,6 +3,8 @@
 import { useState } from "react";
 
 import { AddIncomeButtonDialog } from "./incomeDialog";
+import { UpdateIncomeDialog } from "./incomeDialog";
+import { DeleteIncomeDialog } from "./incomeDialog";
 import { ccyFormat } from "../lib/component";
 
 // MUI imports
@@ -26,10 +28,18 @@ import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 
-const Rows = ({ category, incomes }) => {
+const Rows = ({ category, incomes, categories }) => {
   const [openSubRows, setOpenSubRows] = useState(false);
+
   const [anchorMoreDropDown, setAnchorMoreDropDown] = useState(null);
   const openMoreDropDown = Boolean(anchorMoreDropDown);
+  const [editIncomeData, setEditIncomeData] = useState(null);
+  console.log()
+  console.log()
+  console.log()
+
+  const [openUpdateDialog, setOpenUpdateDialog] = useState(false);
+  const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
 
   const incomesByCateogry = incomes?.filter(
     (income) => income.category === category
@@ -77,7 +87,10 @@ const Rows = ({ category, incomes }) => {
                         id="moreMenu"
                         anchorEl={anchorMoreDropDown}
                         open={openMoreDropDown}
-                        onClose={() => setAnchorMoreDropDown(null)}
+                        onClose={() => {
+                          setAnchorMoreDropDown(null);
+                          setEditIncomeData(income);
+                        }}
                         MenuListProps={{
                           "aria-labelledby": "moreMenuButton",
                         }}
@@ -91,6 +104,17 @@ const Rows = ({ category, incomes }) => {
                         >
                           Delete
                         </MenuItem>
+                        <UpdateIncomeDialog
+                          categories={categories}
+                          income={editIncomeData}
+                          openUpdateDialog={openUpdateDialog}
+                          setOpenUpdateDialog={setOpenUpdateDialog}
+                        />
+                        <DeleteIncomeDialog
+                          income={editIncomeData}
+                          openDeleteDialog={openDeleteDialog}
+                          setOpenDeleteDialog={setOpenDeleteDialog}
+                        />
                       </Menu>
                     </TableCell>
                   </TableRow>
@@ -125,7 +149,12 @@ const IncomeTable = ({
         </TableHead>
         <TableBody>
           {[...incomeCategories]?.map((category) => (
-            <Rows key={category} category={category} incomes={incomes} />
+            <Rows
+              key={category}
+              category={category}
+              incomes={incomes}
+              categories={categories}
+            />
           ))}
           {/* table total amount */}
           <TableRow>

@@ -30,7 +30,7 @@ export const AddLiabilityButtonDialog = ({ categories }) => {
   const { register, handleSubmit, control } = useForm();
   const router = useRouter();
 
-  const onSubmitNewLiability = (formData) => {
+  const handleAddLiability = (formData) => {
     const { liabilityName, liabilityCategory, liabilityAmount } = formData;
 
     axios
@@ -42,7 +42,7 @@ export const AddLiabilityButtonDialog = ({ categories }) => {
       .then((res) => {
         showSnackbar(`Successfully added ${res.data.name}`, "success");
       })
-      .finally(router.refresh("/financialStatement"))
+      .finally(router.refresh("/financialStatement/liabilityTable"))
       .catch((err) => {
         showSnackbar(`error: ${err}`, "error");
       });
@@ -67,7 +67,7 @@ export const AddLiabilityButtonDialog = ({ categories }) => {
           setOpenNewLiabilityEntry(false);
         }}
       >
-        <form onSubmit={handleSubmit(onSubmitNewLiability)}>
+        <form onSubmit={handleSubmit(handleAddLiability)}>
           <DialogTitle>New Liability Entry</DialogTitle>
           <DialogContent>
             <DialogContentText>
@@ -153,7 +153,7 @@ export const UpdateLiabilityDialog = ({
       .then((res) => {
         showSnackbar(`Successfully updated ${res.data.name}`, "success");
       })
-      .finally(router.refresh("/financialStatement"))
+      .finally(router.refresh("/financialStatement/liabilityTable"))
       .catch((err) => {
         showSnackbar(`error: ${err}`, "error");
       });
@@ -249,7 +249,7 @@ export const DeleteLiabilityDialog = ({
       .then((res) => {
         showSnackbar(`Successfully deleted ${res.data.name}`, "success");
       })
-      .finally(router.refresh("/financialStatement"))
+      .finally(router.refresh("/financialStatement/liabilityTable"))
       .catch((err) => {
         showSnackbar(`error: ${err}`, "error");
       });
