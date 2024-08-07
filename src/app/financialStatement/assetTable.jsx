@@ -2,7 +2,11 @@
 
 import { useState } from "react";
 
-import { AddAssetButtonDialog } from "./assetDialog";
+import {
+  AddAssetButtonDialog,
+  UpdateAssetDialog,
+  DeleteAssetDialog,
+} from "./assetDialog";
 import { ccyFormat } from "../lib/component";
 
 // MUI imports
@@ -26,12 +30,17 @@ import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 
-const Rows = ({ category, assets }) => {
-  const [openSubRows, setOpenSubRows] = useState(false);
+const Rows = ({ category, assets, categories }) => {
+  const [openSubRows, setOpenSubRows] = useState(true);
+
   const [anchorMoreDropDown, setAnchorMoreDropDown] = useState(null);
   const openMoreDropDown = Boolean(anchorMoreDropDown);
+  const [editAssetData, setEditAssetData] = useState(null);
 
-  const incomesByCateogry = assets?.filter(
+  const [openUpdateDialog, setOpenUpdateDialog] = useState(false);
+  const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+
+  const assetsByCateogry = assets?.filter(
     (asset) => asset.category === category
   );
 
@@ -58,18 +67,21 @@ const Rows = ({ category, assets }) => {
             <Table size="small" aria-label="purchases">
               <TableBody>
                 {/* sub table rows */}
-                {incomesByCateogry?.map((income, idx) => (
+                {assetsByCateogry?.map((asset, idx) => (
                   <TableRow key={idx}>
                     <TableCell component="th" scope="row">
-                      {income.name}
+                      {asset.name}
                     </TableCell>
                     <TableCell align="right">
-                      {ccyFormat(income.amount)}
+                      {ccyFormat(asset.amount)}
                     </TableCell>
                     <TableCell width="75px" align="right">
                       <IconButton
                         id="moreMenuButton"
-                        onClick={(e) => setAnchorMoreDropDown(e.currentTarget)}
+                        onClick={(e) => {
+                          setAnchorMoreDropDown(e.currentTarget);
+                          setEditAssetData(asset);
+                        }}
                       >
                         <MoreHorizIcon />
                       </IconButton>
@@ -82,16 +94,35 @@ const Rows = ({ category, assets }) => {
                           "aria-labelledby": "moreMenuButton",
                         }}
                       >
-                        <MenuItem onClick={() => setAnchorMoreDropDown(null)}>
+                        <MenuItem
+                          onClick={() => {
+                            setAnchorMoreDropDown(null);
+                            setOpenUpdateDialog(!openUpdateDialog);
+                          }}
+                        >
                           Edit
                         </MenuItem>
                         <MenuItem
                           sx={{ color: "danger.main" }}
-                          onClick={() => setAnchorMoreDropDown(null)}
+                          onClick={() => {
+                            setAnchorMoreDropDown(null);
+                            setOpenDeleteDialog(!openDeleteDialog);
+                          }}
                         >
                           Delete
                         </MenuItem>
                       </Menu>
+                      <UpdateAssetDialog
+                        categories={categories}
+                        asset={editAssetData}
+                        openUpdateDialog={openUpdateDialog}
+                        setOpenUpdateDialog={setOpenUpdateDialog}
+                      />
+                      <DeleteAssetDialog
+                        asset={editAssetData}
+                        openDeleteDialog={openDeleteDialog}
+                        setOpenDeleteDialog={setOpenDeleteDialog}
+                      />
                     </TableCell>
                   </TableRow>
                 ))}
@@ -104,12 +135,7 @@ const Rows = ({ category, assets }) => {
   );
 };
 
-const AssetTable = ({
-  assets,
-  assetTotal,
-  assetCategories,
-  categories,
-}) => {
+const AssetTable = ({ assets, assetTotal, assetCategories, categories }) => {
   return (
     <TableContainer component={Paper}>
       <Table sx={{ minWidth: 700 }} aria-label="spanning table">
@@ -125,7 +151,12 @@ const AssetTable = ({
         </TableHead>
         <TableBody>
           {[...assetCategories]?.map((category) => (
-            <Rows key={category} category={category} assets={assets} />
+            <Rows
+              key={category}
+              category={category}
+              assets={assets}
+              categories={categories}
+            />
           ))}
           {/* table total amount */}
           <TableRow>

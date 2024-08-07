@@ -2,7 +2,11 @@
 
 import { useState } from "react";
 
-import { AddExpenseButtonDialog } from "./expenseDialog";
+import {
+  AddExpenseButtonDialog,
+  UpdateExpenseDialog,
+  DeleteExpenseDialog,
+} from "./expenseDialog";
 import { ccyFormat } from "../lib/component";
 
 // MUI imports
@@ -26,10 +30,15 @@ import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 
-const Rows = ({ category, expenses }) => {
-  const [openSubRows, setOpenSubRows] = useState(false);
+const Rows = ({ category, expenses, categories }) => {
+  const [openSubRows, setOpenSubRows] = useState(true);
+
   const [anchorMoreDropDown, setAnchorMoreDropDown] = useState(null);
   const openMoreDropDown = Boolean(anchorMoreDropDown);
+  const [editExpenseData, setEditExpenseData] = useState(null);
+
+  const [openUpdateDialog, setOpenUpdateDialog] = useState(false);
+  const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
 
   const expensesByCateogry = expenses?.filter(
     (expense) => expense.category === category
@@ -69,7 +78,10 @@ const Rows = ({ category, expenses }) => {
                     <TableCell width="75px" align="right">
                       <IconButton
                         id="moreMenuButton"
-                        onClick={(e) => setAnchorMoreDropDown(e.currentTarget)}
+                        onClick={(e) => {
+                          setAnchorMoreDropDown(e.currentTarget);
+                          setEditExpenseData(expense);
+                        }}
                       >
                         <MoreHorizIcon />
                       </IconButton>
@@ -82,16 +94,35 @@ const Rows = ({ category, expenses }) => {
                           "aria-labelledby": "moreMenuButton",
                         }}
                       >
-                        <MenuItem onClick={() => setAnchorMoreDropDown(null)}>
+                        <MenuItem
+                          onClick={() => {
+                            setAnchorMoreDropDown(null);
+                            setOpenUpdateDialog(!openUpdateDialog);
+                          }}
+                        >
                           Edit
                         </MenuItem>
                         <MenuItem
                           sx={{ color: "danger.main" }}
-                          onClick={() => setAnchorMoreDropDown(null)}
+                          onClick={() => {
+                            setAnchorMoreDropDown(null);
+                            setOpenDeleteDialog(!openDeleteDialog);
+                          }}
                         >
                           Delete
                         </MenuItem>
                       </Menu>
+                      <UpdateExpenseDialog
+                        categories={categories}
+                        expense={editExpenseData}
+                        openUpdateDialog={openUpdateDialog}
+                        setOpenUpdateDialog={setOpenUpdateDialog}
+                      />
+                      <DeleteExpenseDialog
+                        expense={editExpenseData}
+                        openDeleteDialog={openDeleteDialog}
+                        setOpenDeleteDialog={setOpenDeleteDialog}
+                      />
                     </TableCell>
                   </TableRow>
                 ))}
@@ -125,7 +156,12 @@ const ExpenseTable = ({
         </TableHead>
         <TableBody>
           {[...expenseCategories]?.map((category) => (
-            <Rows key={category} category={category} expenses={expenses} />
+            <Rows
+              key={category}
+              category={category}
+              expenses={expenses}
+              categories={categories}
+            />
           ))}
           {/* table total amount */}
           <TableRow>

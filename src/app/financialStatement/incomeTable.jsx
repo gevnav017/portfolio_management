@@ -29,14 +29,11 @@ import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 
 const Rows = ({ category, incomes, categories }) => {
-  const [openSubRows, setOpenSubRows] = useState(false);
+  const [openSubRows, setOpenSubRows] = useState(true);
 
   const [anchorMoreDropDown, setAnchorMoreDropDown] = useState(null);
   const openMoreDropDown = Boolean(anchorMoreDropDown);
   const [editIncomeData, setEditIncomeData] = useState(null);
-  console.log()
-  console.log()
-  console.log()
 
   const [openUpdateDialog, setOpenUpdateDialog] = useState(false);
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
@@ -79,7 +76,10 @@ const Rows = ({ category, incomes, categories }) => {
                     <TableCell width="75px" align="right">
                       <IconButton
                         id="moreMenuButton"
-                        onClick={(e) => setAnchorMoreDropDown(e.currentTarget)}
+                        onClick={(e) => {
+                          setAnchorMoreDropDown(e.currentTarget);
+                          setEditIncomeData(income);
+                        }}
                       >
                         <MoreHorizIcon />
                       </IconButton>
@@ -89,33 +89,40 @@ const Rows = ({ category, incomes, categories }) => {
                         open={openMoreDropDown}
                         onClose={() => {
                           setAnchorMoreDropDown(null);
-                          setEditIncomeData(income);
                         }}
                         MenuListProps={{
                           "aria-labelledby": "moreMenuButton",
                         }}
                       >
-                        <MenuItem onClick={() => setAnchorMoreDropDown(null)}>
+                        <MenuItem
+                          onClick={() => {
+                            setAnchorMoreDropDown(null);
+                            setOpenUpdateDialog(!openUpdateDialog);
+                          }}
+                        >
                           Edit
                         </MenuItem>
                         <MenuItem
                           sx={{ color: "danger.main" }}
-                          onClick={() => setAnchorMoreDropDown(null)}
+                          onClick={() => {
+                            setAnchorMoreDropDown(null);
+                            setOpenDeleteDialog(!openDeleteDialog);
+                          }}
                         >
                           Delete
                         </MenuItem>
-                        <UpdateIncomeDialog
-                          categories={categories}
-                          income={editIncomeData}
-                          openUpdateDialog={openUpdateDialog}
-                          setOpenUpdateDialog={setOpenUpdateDialog}
-                        />
-                        <DeleteIncomeDialog
-                          income={editIncomeData}
-                          openDeleteDialog={openDeleteDialog}
-                          setOpenDeleteDialog={setOpenDeleteDialog}
-                        />
                       </Menu>
+                      <UpdateIncomeDialog
+                        categories={categories}
+                        income={editIncomeData}
+                        openUpdateDialog={openUpdateDialog}
+                        setOpenUpdateDialog={setOpenUpdateDialog}
+                      />
+                      <DeleteIncomeDialog
+                        income={editIncomeData}
+                        openDeleteDialog={openDeleteDialog}
+                        setOpenDeleteDialog={setOpenDeleteDialog}
+                      />
                     </TableCell>
                   </TableRow>
                 ))}

@@ -30,7 +30,7 @@ import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 
 const Rows = ({ category, categories, liabilities }) => {
-  const [openSubRows, setOpenSubRows] = useState(false);
+  const [openSubRows, setOpenSubRows] = useState(true);
 
   const [anchorMoreDropDown, setAnchorMoreDropDown] = useState(null);
   const openMoreDropDown = Boolean(anchorMoreDropDown);

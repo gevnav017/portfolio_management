@@ -13,7 +13,7 @@ import LiabilityTable from "./liabilityTable";
 import { ccyFormat } from "../lib/component";
 
 // MUI imports
-import { Stack, Card, Typography, Box } from "@mui/material";
+import { Stack, Card, Typography, Box, LinearProgress } from "@mui/material";
 
 const FinancialStatement = async () => {
   const { categories } = await getCategories();
@@ -79,8 +79,25 @@ const FinancialStatement = async () => {
                   {ccyFormat(expenseTotal)}
                 </Typography>
               </Stack>
-              <Stack direction="row" justifyContent="center" p={2}>
-                <Box>bar chart</Box>
+              <Stack
+                direction="row"
+                justifyContent="center"
+                alignItems="center"
+                p={2}
+              >
+                <Box sx={{ width: "100%", mr: 2 }}>
+                  <LinearProgress
+                    sx={{ height: "20px", borderRadius: 2 }}
+                    variant="determinate"
+                    value={20}
+                  />
+                </Box>
+                <Box sx={{ minWidth: 35 }}>
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                  >{`${Math.round(20)}%`}</Typography>
+                </Box>
               </Stack>
               <Stack direction="row" justifyContent="space-between" p={2}>
                 <Typography variant="subtitle1">Cash</Typography>

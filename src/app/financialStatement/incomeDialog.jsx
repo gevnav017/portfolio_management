@@ -7,6 +7,7 @@ import { useForm, Controller } from "react-hook-form";
 import { baseURL } from "../lib/component";
 import { showSnackbar } from "../lib/snackbar";
 import { useRouter } from "next/navigation";
+import { capFirstLetter } from "../lib/component";
 
 // MUI imports
 import {
@@ -27,22 +28,24 @@ import {
 
 export const AddIncomeButtonDialog = ({ categories }) => {
   const [openNewIncomeEntry, setOpenNewIncomeEntry] = useState(false);
-  const { register, handleSubmit, control } = useForm();
+  const { register, handleSubmit, reset, control } = useForm();
   const router = useRouter();
 
   // const { data, error, isLoading } = useSWR(baseURL + "api/asset", fetcher);
 
   const handleAddIncome = (formData) => {
-    const { incomeName, incomeCategory, incomeAmount } = formData;
+    const { incomeName, incomeCategory, incomeType, incomeAmount } = formData;
 
     axios
       .post(`${baseURL}/api/income`, {
-        name: incomeName,
+        name: capFirstLetter(incomeName),
+        type: incomeType,
         category: incomeCategory,
         amount: incomeAmount,
       })
       .then((res) => {
         showSnackbar(`Successfully added ${res.data.name}`, "success");
+        reset();
       })
       .finally(router.refresh("/financialStatement/incomeTable"))
       .catch((err) => {
@@ -55,7 +58,6 @@ export const AddIncomeButtonDialog = ({ categories }) => {
   return (
     <>
       <Button
-        variant="outlined"
         onClick={() => {
           setOpenNewIncomeEntry(true);
         }}
@@ -105,8 +107,30 @@ export const AddIncomeButtonDialog = ({ categories }) => {
                       onChange={(e) => field.onChange(e.target.value)}
                     >
                       {categories?.map((category) => (
-                        <MenuItem key={category.name} value={category.name}>
+                        <MenuItem key={category.id} value={category.name}>
                           {category.name}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  )}
+                />
+              </FormControl>
+              <FormControl variant="standard" fullWidth>
+                <InputLabel id="incomeType">Type</InputLabel>
+                <Controller
+                  name="incomeType"
+                  control={control}
+                  rules={{ required: "This field is required" }}
+                  render={({ field }) => (
+                    <Select
+                      labelId="incometype"
+                      {...field}
+                      value={field.value || ""}
+                      onChange={(e) => field.onChange(e.target.value)}
+                    >
+                      {["Active", "Passive"].map((type) => (
+                        <MenuItem key={type} value={type}>
+                          {type}
                         </MenuItem>
                       ))}
                     </Select>
@@ -139,7 +163,7 @@ export const UpdateIncomeDialog = ({
   openUpdateDialog,
   setOpenUpdateDialog,
 }) => {
-  const { register, handleSubmit, control } = useForm();
+  const { register, handleSubmit, reset, control } = useForm();
 
   const router = useRouter();
 
@@ -148,12 +172,13 @@ export const UpdateIncomeDialog = ({
 
     axios
       .put(`${baseURL}/api/income/${income?.id}`, {
-        name: incomeName,
+        name: capFirstLetter(incomeName),
         category: incomeCategory,
         amount: incomeAmount,
       })
       .then((res) => {
         showSnackbar(`Successfully updated ${res.data.name}`, "success");
+        reset();
       })
       .finally(router.refresh("/financialStatement/incomeTable"))
       .catch((err) => {
@@ -173,9 +198,7 @@ export const UpdateIncomeDialog = ({
       <form onSubmit={handleSubmit(handleUpdateIncome)}>
         <DialogTitle>Update Income</DialogTitle>
         <DialogContent>
-          <DialogContentText>
-            Update income information below
-          </DialogContentText>
+          <DialogContentText>Update income information below</DialogContentText>
           <Stack gap={2}>
             <FormControl fullWidth variant="standard">
               <InputLabel htmlFor="incomeName">Name</InputLabel>
@@ -211,7 +234,7 @@ export const UpdateIncomeDialog = ({
                     onChange={(e) => field.onChange(e.target.value)}
                   >
                     {categories?.map((category) => (
-                      <MenuItem key={category.name} value={category.name}>
+                      <MenuItem key={category.id} value={category.name}>
                         {category.name}
                       </MenuItem>
                     ))}
@@ -219,6 +242,30 @@ export const UpdateIncomeDialog = ({
                 )}
               />
             </FormControl>
+
+            {/* <FormControl variant="standard" fullWidth>
+              <InputLabel id="incomeType">Type</InputLabel>
+              <Controller
+                name="incomeType"
+                control={control}
+                defaultValue={income?.type}
+                rules={{ required: "This field is required" }}
+                render={({ field }) => (
+                  <Select
+                    labelId="incometype"
+                    {...field}
+                    value={field.value || ""}
+                    onChange={(e) => field.onChange(e.target.value)}
+                  >
+                    {["Active", "Passive"].map((type) => (
+                      <MenuItem key={type} value={type}>
+                        {type}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                )}
+              />
+            </FormControl> */}
           </Stack>
         </DialogContent>
         <DialogActions>
@@ -239,19 +286,19 @@ export const UpdateIncomeDialog = ({
 };
 
 export const DeleteIncomeDialog = ({
-  liability,
+  income,
   openDeleteDialog,
   setOpenDeleteDialog,
 }) => {
   const router = useRouter();
 
-  const handleDeleteIncome = (liabilityId) => {
+  const handleDeleteIncome = (incomeId) => {
     axios
-      .delete(`${baseURL}/api/income/${liabilityId}`)
+      .delete(`${baseURL}/api/income/${incomeId}`)
       .then((res) => {
         showSnackbar(`Successfully deleted ${res.data.name}`, "success");
       })
-      .finally(router.refresh("/financialStatement/incomeTable"))
+      // .finally(router.refresh("/financialStatement/incomeTable"))
       .catch((err) => {
         showSnackbar(`error: ${err}`, "error");
       });
@@ -272,7 +319,7 @@ export const DeleteIncomeDialog = ({
         <DialogTitle>Confirm Delete</DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-description">
-            {`Are you sure you want to delete ${liability?.name}?`}
+            {`Are you sure you want to delete ${income?.name}?`}
           </DialogContentText>
         </DialogContent>
         <DialogActions>
@@ -287,7 +334,7 @@ export const DeleteIncomeDialog = ({
             variant="contained"
             color="danger"
             onClick={() => {
-              handleDeleteIncome(liability.id);
+              handleDeleteIncome(income.id);
             }}
           >
             Delete

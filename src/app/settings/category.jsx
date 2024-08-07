@@ -38,7 +38,11 @@ const Category = ({ categories }) => {
   const openMoreDropDown = Boolean(anchorMoreDropDown);
 
   const [openNewCategoryDialog, setOpenNewCategoryDialog] = useState(false);
-  const { register, handleSubmit, control } = useForm();
+  const [openUpdateDialog, setOpenUpdateDialog] = useState(false);
+  const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+  const [editCategoryData, setEditCategoryData] = useState(null);
+
+  const { register, handleSubmit, reset } = useForm();
   const router = useRouter();
 
   const handleAddCategory = (formData) => {
@@ -88,6 +92,7 @@ const Category = ({ categories }) => {
                     id="moreMenuButton"
                     onClick={(e) => {
                       setAnchorMoreDropDown(e.currentTarget);
+                      setEditCategoryData(category);
                     }}
                   >
                     <MoreHorizIcon />
@@ -104,7 +109,7 @@ const Category = ({ categories }) => {
                     <MenuItem
                       onClick={() => {
                         setAnchorMoreDropDown(null);
-                        // setOpenUpdateDialog(!openUpdateDialog);
+                        setOpenUpdateDialog(!openUpdateDialog);
                       }}
                     >
                       Edit
@@ -113,23 +118,22 @@ const Category = ({ categories }) => {
                       sx={{ color: "danger.main" }}
                       onClick={() => {
                         setAnchorMoreDropDown(null);
-                        // setOpenDeleteDialog(!openDeleteDialog);
+                        setOpenDeleteDialog(!openDeleteDialog);
                       }}
                     >
                       Delete
                     </MenuItem>
                   </Menu>
-                  {/* <UpdateLiabilityDialog
-                    categories={categories}
-                    liability={editLiabilityData}
+                  <UpdateCategoryDialog
+                    category={editCategoryData}
                     openUpdateDialog={openUpdateDialog}
                     setOpenUpdateDialog={setOpenUpdateDialog}
                   />
-                  <DeleteLiabilityDialog
-                    liability={editLiabilityData}
+                  <DeleteCategoryDialog
+                    category={editCategoryData}
                     openDeleteDialog={openDeleteDialog}
                     setOpenDeleteDialog={setOpenDeleteDialog}
-                  /> */}
+                  />
                 </TableCell>
               </TableRow>
             ))}
@@ -171,6 +175,134 @@ const Category = ({ categories }) => {
         </form>
       </Dialog>
     </Stack>
+  );
+};
+
+const UpdateCategoryDialog = ({
+  category,
+  openUpdateDialog,
+  setOpenUpdateDialog,
+}) => {
+  const { register, handleSubmit, reset } = useForm();
+  const router = useRouter();
+
+  const handleUpdateCategory = (formData) => {
+    const { categoryName } = formData;
+
+    axios
+      .put(`${baseURL}/api/category/${category.id}`, {
+        name: categoryName,
+      })
+      .then((res) => {
+        showSnackbar(`Successfully updated ${res.data.name}`, "success");
+        reset();
+      })
+      .finally(router.refresh("/settings/category"))
+      .catch((err) => {
+        showSnackbar(`error: ${err}`, "error");
+      });
+
+    setOpenUpdateDialog(!openUpdateDialog);
+  };
+
+  return (
+    <Dialog
+      open={openUpdateDialog}
+      onClose={() => {
+        setOpenUpdateDialog(!openUpdateDialog);
+      }}
+    >
+      <form onSubmit={handleSubmit(handleUpdateCategory)}>
+        <DialogTitle>Update Category</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Update category information below
+          </DialogContentText>
+          <Stack gap={2}>
+            <FormControl fullWidth variant="standard">
+              <InputLabel htmlFor="categoryName">Name</InputLabel>
+              <Input
+                id="categoryName"
+                defaultValue={category?.name}
+                {...register("categoryName")}
+              />
+            </FormControl>
+          </Stack>
+        </DialogContent>
+        <DialogActions>
+          <Button
+            onClick={() => {
+              setOpenUpdateDialog(!openUpdateDialog);
+            }}
+          >
+            Cancel
+          </Button>
+          <Button type="submit" variant="contained">
+            Submit
+          </Button>
+        </DialogActions>
+      </form>
+    </Dialog>
+  );
+};
+
+const DeleteCategoryDialog = ({
+  category,
+  openDeleteDialog,
+  setOpenDeleteDialog,
+}) => {
+  const router = useRouter();
+
+  const handleDeleteCategory = () => {
+    axios
+      .delete(`${baseURL}/api/category/${category.id}`)
+      .then((res) => {
+        showSnackbar(`Successfully deleted ${res.data.name}`, "success");
+      })
+      .finally(router.refresh("/settings/category"))
+      .catch((err) => {
+        showSnackbar(`error: ${err}`, "error");
+      });
+
+    setOpenDeleteDialog(false);
+  };
+
+  return (
+    <>
+      <Dialog
+        open={openDeleteDialog}
+        onClose={() => {
+          setOpenDeleteDialog(false);
+        }}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle>Confirm Delete</DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            {`Are you sure you want to delete ${category?.name}?`}
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button
+            onClick={() => {
+              setOpenDeleteDialog(false);
+            }}
+          >
+            Cancel
+          </Button>
+          <Button
+            variant="contained"
+            color="danger"
+            onClick={() => {
+              handleDeleteCategory();
+            }}
+          >
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </>
   );
 };
 

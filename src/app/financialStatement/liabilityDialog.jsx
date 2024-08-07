@@ -27,7 +27,7 @@ import {
 
 export const AddLiabilityButtonDialog = ({ categories }) => {
   const [openNewLiabilityEntry, setOpenNewLiabilityEntry] = useState(false);
-  const { register, handleSubmit, control } = useForm();
+  const { register, handleSubmit, reset, control } = useForm();
   const router = useRouter();
 
   const handleAddLiability = (formData) => {
@@ -41,6 +41,7 @@ export const AddLiabilityButtonDialog = ({ categories }) => {
       })
       .then((res) => {
         showSnackbar(`Successfully added ${res.data.name}`, "success");
+        reset();
       })
       .finally(router.refresh("/financialStatement/liabilityTable"))
       .catch((err) => {
@@ -53,7 +54,6 @@ export const AddLiabilityButtonDialog = ({ categories }) => {
   return (
     <>
       <Button
-        variant="outlined"
         onClick={() => {
           setOpenNewLiabilityEntry(true);
         }}
@@ -137,7 +137,7 @@ export const UpdateLiabilityDialog = ({
   openUpdateDialog,
   setOpenUpdateDialog,
 }) => {
-  const { register, handleSubmit, control } = useForm();
+  const { register, handleSubmit, reset, control } = useForm();
 
   const router = useRouter();
 
@@ -152,6 +152,7 @@ export const UpdateLiabilityDialog = ({
       })
       .then((res) => {
         showSnackbar(`Successfully updated ${res.data.name}`, "success");
+        reset();
       })
       .finally(router.refresh("/financialStatement/liabilityTable"))
       .catch((err) => {

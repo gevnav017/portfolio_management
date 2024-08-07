@@ -17,6 +17,7 @@ model category {
 model income {
   id String @id @default(uuid())
   category String
+  type String
   name String
   amount Decimal
   createdAt DateTime @default(now())

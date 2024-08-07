@@ -2,6 +2,7 @@
 
 import { NextResponse } from "next/server";
 import db from "../../../../../db/db";
+import { revalidatePath } from "next/cache";
 
 // delete income
 export async function DELETE(req, { params }) {

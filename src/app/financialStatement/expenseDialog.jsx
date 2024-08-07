@@ -8,6 +8,7 @@ import { useForm, Controller } from "react-hook-form";
 import { baseURL } from "../lib/component";
 import { showSnackbar } from "../lib/snackbar";
 import { useRouter } from "next/navigation";
+import { capFirstLetter } from "../lib/component";
 
 // MUI imports
 import {
@@ -26,11 +27,11 @@ import {
   Select,
 } from "@mui/material";
 
-import LaunchIcon from '@mui/icons-material/Launch';
+import LaunchIcon from "@mui/icons-material/Launch";
 
 export const AddExpenseButtonDialog = ({ categories }) => {
   const [openNewExpenseEntry, setOpenNewExpenseEntry] = useState(false);
-  const { register, handleSubmit, control } = useForm();
+  const { register, handleSubmit, reset, control } = useForm();
   const router = useRouter();
 
   const handleAddExpense = (formData) => {
@@ -44,6 +45,7 @@ export const AddExpenseButtonDialog = ({ categories }) => {
       })
       .then((res) => {
         showSnackbar(`Successfully added ${res.data.name}`, "success");
+        reset();
       })
       .finally(router.refresh("/financialStatement/expenseTable"))
       .catch((err) => {
@@ -56,7 +58,6 @@ export const AddExpenseButtonDialog = ({ categories }) => {
   return (
     <>
       <Button
-        variant="outlined"
         onClick={() => {
           setOpenNewExpenseEntry(!openNewExpenseEntry);
         }}
@@ -111,7 +112,9 @@ export const AddExpenseButtonDialog = ({ categories }) => {
                         </MenuItem>
                       ))}
                       <MenuItem>
-                        <Link href="/settings">Add New <LaunchIcon /></Link>
+                        <Link href="/settings">
+                          Add New <LaunchIcon />
+                        </Link>
                       </MenuItem>
                     </Select>
                   )}
@@ -132,6 +135,196 @@ export const AddExpenseButtonDialog = ({ categories }) => {
             </Button>
           </DialogActions>
         </form>
+      </Dialog>
+    </>
+  );
+};
+
+export const UpdateExpenseDialog = ({
+  expense,
+  categories,
+  openUpdateDialog,
+  setOpenUpdateDialog,
+}) => {
+  const { register, handleSubmit, reset, control } = useForm();
+
+  const router = useRouter();
+
+  const handleUpdateExpense = (formData) => {
+    const { expenseName, expenseCategory, expenseAmount } = formData;
+
+    axios
+      .put(`${baseURL}/api/expense/${expense?.id}`, {
+        name: capFirstLetter(expenseName),
+        category: expenseCategory,
+        amount: expenseAmount,
+      })
+      .then((res) => {
+        showSnackbar(`Successfully updated ${res.data.name}`, "success");
+        reset();
+      })
+      .finally(router.refresh("/financialStatement/expenseTable"))
+      .catch((err) => {
+        showSnackbar(`error: ${err}`, "error");
+      });
+
+    setOpenUpdateDialog(!openUpdateDialog);
+  };
+
+  return (
+    <Dialog
+      open={openUpdateDialog}
+      onClose={() => {
+        setOpenUpdateDialog(!openUpdateDialog);
+      }}
+    >
+      <form onSubmit={handleSubmit(handleUpdateExpense)}>
+        <DialogTitle>Update Expense</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Update expense information below
+          </DialogContentText>
+          <Stack gap={2}>
+            <FormControl fullWidth variant="standard">
+              <InputLabel htmlFor="expenseName">Name</InputLabel>
+              <Input
+                id="expenseName"
+                defaultValue={expense?.name}
+                {...register("expenseName")}
+              />
+            </FormControl>
+            <FormControl fullWidth variant="standard">
+              <InputLabel htmlFor="expenseAmount">Amount</InputLabel>
+              <Input
+                id="expenseAmount"
+                defaultValue={expense?.amount}
+                {...register("expenseAmount")}
+                startAdornment={
+                  <InputAdornment position="start">$</InputAdornment>
+                }
+              />
+            </FormControl>
+            <FormControl variant="standard" fullWidth>
+              <InputLabel id="expenseCategory">Category</InputLabel>
+              <Controller
+                name="expenseCategory"
+                control={control}
+                defaultValue={expense?.category}
+                rules={{ required: "This field is required" }}
+                render={({ field }) => (
+                  <Select
+                    labelId="expenseCategory"
+                    {...field}
+                    value={field.value || ""}
+                    onChange={(e) => field.onChange(e.target.value)}
+                  >
+                    {categories?.map((category) => (
+                      <MenuItem key={category.id} value={category.name}>
+                        {category.name}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                )}
+              />
+            </FormControl>
+
+            {/* <FormControl variant="standard" fullWidth>
+              <InputLabel id="incomeType">Type</InputLabel>
+              <Controller
+                name="incomeType"
+                control={control}
+                defaultValue={income?.type}
+                rules={{ required: "This field is required" }}
+                render={({ field }) => (
+                  <Select
+                    labelId="incometype"
+                    {...field}
+                    value={field.value || ""}
+                    onChange={(e) => field.onChange(e.target.value)}
+                  >
+                    {["Active", "Passive"].map((type) => (
+                      <MenuItem key={type} value={type}>
+                        {type}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                )}
+              />
+            </FormControl> */}
+          </Stack>
+        </DialogContent>
+        <DialogActions>
+          <Button
+            onClick={() => {
+              setOpenUpdateDialog(!openUpdateDialog);
+            }}
+          >
+            Cancel
+          </Button>
+          <Button type="submit" variant="contained">
+            Update
+          </Button>
+        </DialogActions>
+      </form>
+    </Dialog>
+  );
+};
+
+export const DeleteExpenseDialog = ({
+  expense,
+  openDeleteDialog,
+  setOpenDeleteDialog,
+}) => {
+  const router = useRouter();
+
+  const handleDeleteExpense = (expenseId) => {
+    axios
+      .delete(`${baseURL}/api/expense/${expenseId}`)
+      .then((res) => {
+        showSnackbar(`Successfully deleted ${res.data.name}`, "success");
+      })
+      .finally(router.refresh("/financialStatement/expenseTable"))
+      .catch((err) => {
+        showSnackbar(`error: ${err}`, "error");
+      });
+
+    setOpenDeleteDialog(false);
+  };
+
+  return (
+    <>
+      <Dialog
+        open={openDeleteDialog}
+        onClose={() => {
+          setOpenDeleteDialog(false);
+        }}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle>Confirm Delete</DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            {`Are you sure you want to delete ${expense?.name}?`}
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button
+            onClick={() => {
+              setOpenDeleteDialog(false);
+            }}
+          >
+            Cancel
+          </Button>
+          <Button
+            variant="contained"
+            color="danger"
+            onClick={() => {
+              handleDeleteExpense(expense.id);
+            }}
+          >
+            Delete
+          </Button>
+        </DialogActions>
       </Dialog>
     </>
   );
