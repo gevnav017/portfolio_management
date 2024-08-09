@@ -40,33 +40,31 @@ export const AddIncomeButtonDialog = ({ categories }) => {
 
   // const { data, error, isLoading } = useSWR(baseURL + "api/asset", fetcher);
 
-  const handleAddIncome = (formData) => {
+  const handleAddIncome = async (formData) => {
     const { incomeName, incomeCategory, incomeType, incomeAmount } = formData;
 
-    axios
-      .post(`${baseURL}/api/income`, {
+    try {
+      const res = await axios.post(`${baseURL}/api/income`, {
         name: capFirstLetter(incomeName),
         type: incomeType,
         category: incomeCategory,
         amount: incomeAmount,
-      })
-      .then((res) => {
-        showSnackbar(`Successfully added ${res.data.name}`, "success");
-        reset();
-      })
-      .finally(router.refresh("/financialStatement/incomeTable"))
-      .catch((err) => {
-        showSnackbar(`error: ${err}`, "error");
       });
-
-    setOpenNewIncomeEntry(false);
+      setOpenNewIncomeEntry(!openNewIncomeEntry);
+      showSnackbar(`Successfully added ${res.data.name}`, "success");
+      reset();
+    } catch (error) {
+      showSnackbar(`error: ${error.message}`, "error");
+    } finally {
+      router.refresh("/financialStatement/incomeTable");
+    }
   };
 
   return (
     <>
       <Button
         onClick={() => {
-          setOpenNewIncomeEntry(true);
+          setOpenNewIncomeEntry(!openNewIncomeEntry);
         }}
       >
         Add Income
@@ -75,7 +73,7 @@ export const AddIncomeButtonDialog = ({ categories }) => {
       <Dialog
         open={openNewIncomeEntry}
         onClose={() => {
-          setOpenNewIncomeEntry(false);
+          setOpenNewIncomeEntry(!openNewIncomeEntry);
         }}
       >
         <form onSubmit={handleSubmit(handleAddIncome)}>
@@ -176,7 +174,7 @@ export const AddIncomeButtonDialog = ({ categories }) => {
           <DialogActions>
             <Button
               onClick={() => {
-                setOpenNewIncomeEntry(false);
+                setOpenNewIncomeEntry(!openNewIncomeEntry);
               }}
             >
               Cancel
@@ -201,25 +199,23 @@ export const UpdateIncomeDialog = ({
 
   const router = useRouter();
 
-  const handleUpdateIncome = (formData) => {
+  const handleUpdateIncome = async (formData) => {
     const { incomeName, incomeCategory, incomeAmount } = formData;
 
-    axios
-      .put(`${baseURL}/api/income/${income?.id}`, {
+    try {
+      const res = await axios.put(`${baseURL}/api/income/${income?.id}`, {
         name: capFirstLetter(incomeName),
         category: incomeCategory,
         amount: incomeAmount,
-      })
-      .then((res) => {
-        showSnackbar(`Successfully updated ${res.data.name}`, "success");
-        reset();
-      })
-      .finally(router.refresh("/financialStatement/incomeTable"))
-      .catch((err) => {
-        showSnackbar(`error: ${err}`, "error");
       });
-
-    setOpenUpdateDialog(!openUpdateDialog);
+      setOpenUpdateDialog(!openUpdateDialog);
+      showSnackbar(`Successfully updated ${res.data.name}`, "success");
+      reset();
+    } catch (error) {
+      showSnackbar(`error: ${error.message}`, "error");
+    } finally {
+      router.refresh("/financialStatement/incomeTable");
+    }
   };
 
   return (
@@ -326,18 +322,16 @@ export const DeleteIncomeDialog = ({
 }) => {
   const router = useRouter();
 
-  const handleDeleteIncome = (incomeId) => {
-    axios
-      .delete(`${baseURL}/api/income/${incomeId}`)
-      .then((res) => {
-        showSnackbar(`Successfully deleted ${res.data.name}`, "success");
-      })
-      // .finally(router.refresh("/financialStatement/incomeTable"))
-      .catch((err) => {
-        showSnackbar(`error: ${err}`, "error");
-      });
-
-    setOpenDeleteDialog(false);
+  const handleDeleteIncome = async (incomeId) => {
+    try {
+      const res = await axios.delete(`${baseURL}/api/income/${incomeId}`);
+      setOpenDeleteDialog(!openDeleteDialog);
+      showSnackbar(`Successfully deleted ${res.data.name}`, "success");
+    } catch (error) {
+      showSnackbar(`error: ${error.message}`, "error");
+    } finally {
+      router.refresh("/financialStatement/incomeTable");
+    }
   };
 
   return (
@@ -345,7 +339,7 @@ export const DeleteIncomeDialog = ({
       <Dialog
         open={openDeleteDialog}
         onClose={() => {
-          setOpenDeleteDialog(false);
+          setOpenDeleteDialog(!openDeleteDialog);
         }}
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
@@ -359,7 +353,7 @@ export const DeleteIncomeDialog = ({
         <DialogActions>
           <Button
             onClick={() => {
-              setOpenDeleteDialog(false);
+              setOpenDeleteDialog(!openDeleteDialog);
             }}
           >
             Cancel

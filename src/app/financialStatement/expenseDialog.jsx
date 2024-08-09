@@ -34,25 +34,23 @@ export const AddExpenseButtonDialog = ({ categories }) => {
   const { register, handleSubmit, reset, control } = useForm();
   const router = useRouter();
 
-  const handleAddExpense = (formData) => {
+  const handleAddExpense = async (formData) => {
     const { expenseName, expenseCategory, expenseAmount } = formData;
 
-    axios
-      .post(`${baseURL}/api/expense`, {
+    try {
+      const res = await axios.post(`${baseURL}/api/expense`, {
         name: expenseName,
         category: expenseCategory,
         amount: expenseAmount,
-      })
-      .then((res) => {
-        showSnackbar(`Successfully added ${res.data.name}`, "success");
-        reset();
-      })
-      .finally(router.refresh("/financialStatement/expenseTable"))
-      .catch((err) => {
-        showSnackbar(`error: ${err}`, "error");
       });
-
-    setOpenNewExpenseEntry(!openNewExpenseEntry);
+      showSnackbar(`Successfully added ${res.data.name}`, "success");
+      setOpenNewExpenseEntry(!openNewExpenseEntry);
+      reset();
+    } catch (error) {
+      showSnackbar(`error: ${error.message}`, "error");
+    } finally {
+      router.refresh("/financialStatement/expenseTable");
+    }
   };
 
   return (
@@ -150,25 +148,24 @@ export const UpdateExpenseDialog = ({
 
   const router = useRouter();
 
-  const handleUpdateExpense = (formData) => {
+  const handleUpdateExpense = async (formData) => {
     const { expenseName, expenseCategory, expenseAmount } = formData;
 
-    axios
-      .put(`${baseURL}/api/expense/${expense?.id}`, {
+    try {
+      const res = await axios.put(`${baseURL}/api/expense/${expense?.id}`, {
         name: capFirstLetter(expenseName),
         category: expenseCategory,
         amount: expenseAmount,
-      })
-      .then((res) => {
-        showSnackbar(`Successfully updated ${res.data.name}`, "success");
-        reset();
-      })
-      .finally(router.refresh("/financialStatement/expenseTable"))
-      .catch((err) => {
-        showSnackbar(`error: ${err}`, "error");
       });
 
-    setOpenUpdateDialog(!openUpdateDialog);
+      showSnackbar(`Successfully updated ${res.data.name}`, "success");
+      setOpenUpdateDialog(!openUpdateDialog);
+      reset();
+    } catch (error) {
+      showSnackbar(`error: ${error.message}`, "error");
+    } finally {
+      router.refresh("/financialStatement/expenseTable");
+    }
   };
 
   return (
@@ -277,18 +274,16 @@ export const DeleteExpenseDialog = ({
 }) => {
   const router = useRouter();
 
-  const handleDeleteExpense = (expenseId) => {
-    axios
-      .delete(`${baseURL}/api/expense/${expenseId}`)
-      .then((res) => {
-        showSnackbar(`Successfully deleted ${res.data.name}`, "success");
-      })
-      .finally(router.refresh("/financialStatement/expenseTable"))
-      .catch((err) => {
-        showSnackbar(`error: ${err}`, "error");
-      });
-
-    setOpenDeleteDialog(false);
+  const handleDeleteExpense = async (expenseId) => {
+    try {
+      const res = await axios.delete(`${baseURL}/api/expense/${expenseId}`);
+      showSnackbar(`Successfully deleted ${res.data.name}`, "success");
+      setOpenDeleteDialog(false);
+    } catch (error) {
+      showSnackbar(`error: ${error.message}`, "error");
+    } finally {
+      router.refresh("/financialStatement/expenseTable");
+    }
   };
 
   return (

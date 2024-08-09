@@ -30,7 +30,6 @@ export async function getIncomes() {
 export async function POST(req) {
   try {
     const data = await req.json();
-    console.log(data)
 
     const income = await db.income.create({
       data,

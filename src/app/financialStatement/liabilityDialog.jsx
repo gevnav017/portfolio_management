@@ -7,6 +7,7 @@ import { useForm, Controller } from "react-hook-form";
 import { baseURL } from "../lib/component";
 import { showSnackbar } from "../lib/snackbar";
 import { useRouter } from "next/navigation";
+import { capFirstLetter } from "../lib/component";
 
 // MUI imports
 import {
@@ -30,32 +31,31 @@ export const AddLiabilityButtonDialog = ({ categories }) => {
   const { register, handleSubmit, reset, control } = useForm();
   const router = useRouter();
 
-  const handleAddLiability = (formData) => {
+  const handleAddLiability = async (formData) => {
     const { liabilityName, liabilityCategory, liabilityAmount } = formData;
 
-    axios
-      .post(`${baseURL}/api/liability`, {
-        name: liabilityName,
+    try {
+      const res = await axios.post(`${baseURL}/api/liability`, {
+        name: capFirstLetter(liabilityName),
         category: liabilityCategory,
         amount: liabilityAmount,
-      })
-      .then((res) => {
-        showSnackbar(`Successfully added ${res.data.name}`, "success");
-        reset();
-      })
-      .finally(router.refresh("/financialStatement/liabilityTable"))
-      .catch((err) => {
-        showSnackbar(`error: ${err}`, "error");
       });
-
-    setOpenNewLiabilityEntry(false);
+      console.log(res.message)
+      showSnackbar(`Successfully added ${res.data.name}`, "success");
+      setOpenNewLiabilityEntry(!openNewLiabilityEntry);
+      reset();
+    } catch (error) {
+      showSnackbar(`error: ${error.message}`, "error");
+    } finally {
+      router.refresh("/financialStatement/liabilityTable");
+    }
   };
 
   return (
     <>
       <Button
         onClick={() => {
-          setOpenNewLiabilityEntry(true);
+          setOpenNewLiabilityEntry(!openNewLiabilityEntry);
         }}
       >
         Add Liability
@@ -64,7 +64,7 @@ export const AddLiabilityButtonDialog = ({ categories }) => {
       <Dialog
         open={openNewLiabilityEntry}
         onClose={() => {
-          setOpenNewLiabilityEntry(false);
+          setOpenNewLiabilityEntry(!openNewLiabilityEntry);
         }}
       >
         <form onSubmit={handleSubmit(handleAddLiability)}>
@@ -116,7 +116,7 @@ export const AddLiabilityButtonDialog = ({ categories }) => {
           <DialogActions>
             <Button
               onClick={() => {
-                setOpenNewLiabilityEntry(false);
+                setOpenNewLiabilityEntry(!openNewLiabilityEntry);
               }}
             >
               Cancel
@@ -141,25 +141,23 @@ export const UpdateLiabilityDialog = ({
 
   const router = useRouter();
 
-  const handleUpdateLiability = (formData) => {
+  const handleUpdateLiability = async (formData) => {
     const { liabilityName, liabilityCategory, liabilityAmount } = formData;
 
-    axios
-      .put(`${baseURL}/api/liability/${liability?.id}`, {
-        name: liabilityName,
+    try {
+      const res = await axios.put(`${baseURL}/api/liability/${liability?.id}`, {
+        name: capFirstLetter(liabilityName),
         category: liabilityCategory,
         amount: liabilityAmount,
-      })
-      .then((res) => {
-        showSnackbar(`Successfully updated ${res.data.name}`, "success");
-        reset();
-      })
-      .finally(router.refresh("/financialStatement/liabilityTable"))
-      .catch((err) => {
-        showSnackbar(`error: ${err}`, "error");
       });
-
-    setOpenUpdateDialog(!openUpdateDialog);
+      showSnackbar(`Successfully updated ${res.data.name}`, "success");
+      setOpenUpdateDialog(!openUpdateDialog);
+      reset();
+    } catch (error) {
+      showSnackbar(`error: ${error.message}`, "error");
+    } finally {
+      router.refresh("/financialStatement/liabilityTable");
+    }
   };
 
   return (
@@ -244,18 +242,16 @@ export const DeleteLiabilityDialog = ({
 }) => {
   const router = useRouter();
 
-  const handleDeleteLiability = (liabilityId) => {
-    axios
-      .delete(`${baseURL}/api/liability/${liabilityId}`)
-      .then((res) => {
-        showSnackbar(`Successfully deleted ${res.data.name}`, "success");
-      })
-      .finally(router.refresh("/financialStatement/liabilityTable"))
-      .catch((err) => {
-        showSnackbar(`error: ${err}`, "error");
-      });
-
-    setOpenDeleteDialog(false);
+  const handleDeleteLiability = async (liabilityId) => {
+    try {
+      const res = await axios.delete(`${baseURL}/api/liability/${liabilityId}`);
+      showSnackbar(`Successfully deleted ${res.data.name}`, "success");
+      setOpenDeleteDialog(!openDeleteDialog);
+    } catch (error) {
+      showSnackbar(`error: ${error.message}`, "error");
+    } finally {
+      router.refresh("/financialStatement/liabilityTable");
+    }
   };
 
   return (
@@ -263,7 +259,7 @@ export const DeleteLiabilityDialog = ({
       <Dialog
         open={openDeleteDialog}
         onClose={() => {
-          setOpenDeleteDialog(false);
+          setOpenDeleteDialog(!openDeleteDialog);
         }}
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
@@ -277,7 +273,7 @@ export const DeleteLiabilityDialog = ({
         <DialogActions>
           <Button
             onClick={() => {
-              setOpenDeleteDialog(false);
+              setOpenDeleteDialog(!openDeleteDialog);
             }}
           >
             Cancel

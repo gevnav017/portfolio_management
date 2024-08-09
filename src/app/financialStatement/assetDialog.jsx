@@ -33,32 +33,30 @@ export const AddAssetButtonDialog = ({ categories }) => {
 
   // const { data, error, isLoading } = useSWR(baseURL + "api/asset", fetcher);
 
-  const handleAddAsset = (formData) => {
+  const handleAddAsset = async (formData) => {
     const { assetName, assetCategory, assetAmount } = formData;
 
-    axios
-      .post(`${baseURL}/api/asset`, {
+    try {
+      const res = await axios.post(`${baseURL}/api/asset`, {
         name: capFirstLetter(assetName),
         category: assetCategory,
         amount: assetAmount,
-      })
-      .then((res) => {
-        showSnackbar(`Successfully added ${res.data.name}`, "success");
-        reset();
-      })
-      .finally(router.refresh("/financialStatement/assetTable"))
-      .catch((err) => {
-        showSnackbar(`error: ${err}`, "error");
       });
-
-    setOpenNewAssetEntry(false);
+      setOpenNewAssetEntry(!openNewAssetEntry);
+      showSnackbar(`Successfully added ${res.data.name}`, "success");
+      reset();
+    } catch (error) {
+      showSnackbar(`error: ${error.message}`, "error");
+    } finally {
+      router.refresh("/financialStatement/assetTable");
+    }
   };
 
   return (
     <>
       <Button
         onClick={() => {
-          setOpenNewAssetEntry(true);
+          setOpenNewAssetEntry(!openNewAssetEntry);
         }}
       >
         Add Asset
@@ -67,7 +65,7 @@ export const AddAssetButtonDialog = ({ categories }) => {
       <Dialog
         open={openNewAssetEntry}
         onClose={() => {
-          setOpenNewAssetEntry(false);
+          setOpenNewAssetEntry(!openNewAssetEntry);
         }}
       >
         <form onSubmit={handleSubmit(handleAddAsset)}>
@@ -117,7 +115,7 @@ export const AddAssetButtonDialog = ({ categories }) => {
           <DialogActions>
             <Button
               onClick={() => {
-                setOpenNewAssetEntry(false);
+                setOpenNewAssetEntry(!openNewAssetEntry);
               }}
             >
               Cancel
@@ -142,25 +140,23 @@ export const UpdateAssetDialog = ({
 
   const router = useRouter();
 
-  const handleUpdateAsset = (formData) => {
+  const handleUpdateAsset = async (formData) => {
     const { assetName, assetCategory, assetAmount } = formData;
 
-    axios
-      .put(`${baseURL}/api/asset/${asset?.id}`, {
+    try {
+      const res = await axios.put(`${baseURL}/api/asset/${asset?.id}`, {
         name: capFirstLetter(assetName),
         category: assetCategory,
         amount: assetAmount,
-      })
-      .then((res) => {
-        showSnackbar(`Successfully updated ${res.data.name}`, "success");
-        reset();
-      })
-      .finally(router.refresh("/financialStatement/assetTable"))
-      .catch((err) => {
-        showSnackbar(`error: ${err}`, "error");
       });
-
-    setOpenUpdateDialog(!openUpdateDialog);
+      showSnackbar(`Successfully updated ${res.data.name}`, "success");
+      setOpenUpdateDialog(!openUpdateDialog);
+      reset();
+    } catch (error) {
+      showSnackbar(`error: ${error.message}`, "error");
+    } finally {
+      router.refresh("/financialStatement/assetTable");
+    }
   };
 
   return (
@@ -173,9 +169,7 @@ export const UpdateAssetDialog = ({
       <form onSubmit={handleSubmit(handleUpdateAsset)}>
         <DialogTitle>Update asset</DialogTitle>
         <DialogContent>
-          <DialogContentText>
-            Update asset information below
-          </DialogContentText>
+          <DialogContentText>Update asset information below</DialogContentText>
           <Stack gap={2}>
             <FormControl fullWidth variant="standard">
               <InputLabel htmlFor="assetName">Name</InputLabel>
@@ -269,18 +263,19 @@ export const DeleteAssetDialog = ({
 }) => {
   const router = useRouter();
 
-  const handleDeleteAsset = (assetId) => {
-    axios
-      .delete(`${baseURL}/api/asset/${assetId}`)
-      .then((res) => {
-        showSnackbar(`Successfully deleted ${res.data.name}`, "success");
-      })
-      .finally(router.refresh("/financialStatement/assetTable"))
-      .catch((err) => {
-        showSnackbar(`error: ${err}`, "error");
-      });
-
-    setOpenDeleteDialog(false);
+  const handleDeleteAsset = async (assetId) => {
+    try {
+      const res = await axios
+        .delete(`${baseURL}/api/asset/${assetId}`)
+        .then((res) => {
+          showSnackbar(`Successfully deleted ${res.data.name}`, "success");
+        });
+      setOpenDeleteDialog(false);
+    } catch (error) {
+      showSnackbar(`error: ${error.message}`, "error");
+    } finally {
+      router.refresh("/financialStatement/assetTable");
+    }
   };
 
   return (
