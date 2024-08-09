@@ -24,11 +24,18 @@ import {
   MenuItem,
   FormControl,
   Select,
+  Typography,
 } from "@mui/material";
 
 export const AddIncomeButtonDialog = ({ categories }) => {
   const [openNewIncomeEntry, setOpenNewIncomeEntry] = useState(false);
-  const { register, handleSubmit, reset, control } = useForm();
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+    control,
+  } = useForm();
   const router = useRouter();
 
   // const { data, error, isLoading } = useSWR(baseURL + "api/asset", fetcher);
@@ -80,17 +87,34 @@ export const AddIncomeButtonDialog = ({ categories }) => {
             <Stack gap={2}>
               <FormControl fullWidth variant="standard">
                 <InputLabel htmlFor="incomeName">Name</InputLabel>
-                <Input id="incomeName" {...register("incomeName")} />
+                <Input
+                  id="incomeName"
+                  {...register("incomeName", {
+                    required: "This field is required",
+                  })}
+                />
+                {errors.incomeName && (
+                  <Typography variant="caption" color="danger.main">
+                    {errors.incomeName.message}
+                  </Typography>
+                )}
               </FormControl>
               <FormControl fullWidth variant="standard">
                 <InputLabel htmlFor="incomeAmount">Amount</InputLabel>
                 <Input
                   id="incomeAmount"
-                  {...register("incomeAmount")}
+                  {...register("incomeAmount", {
+                    required: "This field is required",
+                  })}
                   startAdornment={
                     <InputAdornment position="start">$</InputAdornment>
                   }
                 />
+                {errors.incomeAmount && (
+                  <Typography variant="caption" color="danger.main">
+                    {errors.incomeAmount.message}
+                  </Typography>
+                )}
               </FormControl>
               <FormControl variant="standard" fullWidth>
                 <InputLabel id="incomeCategory">Category</InputLabel>
@@ -114,6 +138,11 @@ export const AddIncomeButtonDialog = ({ categories }) => {
                     </Select>
                   )}
                 />
+                {errors.incomeCategory && (
+                  <Typography variant="caption" color="danger.main">
+                    {errors.incomeCategory.message}
+                  </Typography>
+                )}
               </FormControl>
               <FormControl variant="standard" fullWidth>
                 <InputLabel id="incomeType">Type</InputLabel>
@@ -136,6 +165,11 @@ export const AddIncomeButtonDialog = ({ categories }) => {
                     </Select>
                   )}
                 />
+                {errors.incomeType && (
+                  <Typography variant="caption" color="danger.main">
+                    {errors.incomeType.message}
+                  </Typography>
+                )}
               </FormControl>
             </Stack>
           </DialogContent>
