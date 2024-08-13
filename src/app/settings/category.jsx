@@ -34,35 +34,98 @@ import {
 
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 
-const Category = ({ categories }) => {
-  const [anchorMoreDropDown, setAnchorMoreDropDown] = useState(null);
-  const openMoreDropDown = Boolean(anchorMoreDropDown);
-
-  const [openNewCategoryDialog, setOpenNewCategoryDialog] = useState(false);
+const CategoryRows = ({ category }) => {
   const [openUpdateDialog, setOpenUpdateDialog] = useState(false);
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [editCategoryData, setEditCategoryData] = useState(null);
 
+  const [anchorMoreDropDown, setAnchorMoreDropDown] = useState(null);
+  const openMoreDropDown = Boolean(anchorMoreDropDown);
+
+  return (
+    <TableRow
+      sx={{
+        "&:hover": {
+          bgcolor: "background.light"
+        },
+      }}
+    >
+      <TableCell>{category.name}</TableCell>
+      <TableCell>{category.reference}</TableCell>
+      <TableCell width="75px" align="right">
+        <IconButton
+          id="moreMenuButton"
+          onClick={(e) => {
+            setAnchorMoreDropDown(e.currentTarget);
+            setEditCategoryData(category);
+          }}
+        >
+          <MoreHorizIcon />
+        </IconButton>
+        <Menu
+          id="moreMenu"
+          anchorEl={anchorMoreDropDown}
+          open={openMoreDropDown}
+          onClose={() => setAnchorMoreDropDown(null)}
+          MenuListProps={{
+            "aria-labelledby": "moreMenuButton",
+          }}
+        >
+          <MenuItem
+            onClick={() => {
+              setAnchorMoreDropDown(null);
+              setOpenUpdateDialog(!openUpdateDialog);
+            }}
+          >
+            Edit
+          </MenuItem>
+          <MenuItem
+            sx={{ color: "danger.main" }}
+            onClick={() => {
+              setAnchorMoreDropDown(null);
+              setOpenDeleteDialog(!openDeleteDialog);
+            }}
+          >
+            Delete
+          </MenuItem>
+        </Menu>
+        <UpdateCategoryDialog
+          category={editCategoryData}
+          openUpdateDialog={openUpdateDialog}
+          setOpenUpdateDialog={setOpenUpdateDialog}
+        />
+        <DeleteCategoryDialog
+          category={editCategoryData}
+          openDeleteDialog={openDeleteDialog}
+          setOpenDeleteDialog={setOpenDeleteDialog}
+        />
+      </TableCell>
+    </TableRow>
+  );
+};
+
+const Category = ({ categories }) => {
+  const [openNewCategoryDialog, setOpenNewCategoryDialog] = useState(false);
+
   const { register, handleSubmit, reset, control } = useForm();
   const router = useRouter();
 
-  const handleAddCategory = (formData) => {
+  const handleAddCategory = async (formData) => {
     const { categoryName, categoryReference } = formData;
 
-    axios
-      .post(`${baseURL}/api/category`, {
+    try {
+      const res = await axios.post(`${baseURL}/api/category`, {
         name: categoryName,
         reference: categoryReference,
-      })
-      .then((res) => {
-        showSnackbar(`Successfully added ${res.data.name}`, "success");
-      })
-      .finally(router.refresh("/settings/category"))
-      .catch((err) => {
-        showSnackbar(`error: ${err}`, "error");
       });
-
-    setOpenNewCategoryDialog(!openNewCategoryDialog);
+      setOpenNewCategoryDialog(!openNewCategoryDialog);
+      showSnackbar(`Successfully added ${res.data.name}`, "success");
+      reset();
+    } catch (error) {
+      showSnackbar(`error: ${err}`, "error");
+    } finally {
+      router.refresh("/settings/category");
+    }
   };
 
   return (
@@ -86,60 +149,19 @@ const Category = ({ categories }) => {
               </TableCell>
             </TableRow>
           </TableHead>
+          <TableHead>
+            <TableRow>
+              <TableCell>
+                <Typography variant="caption">Name</Typography>
+              </TableCell>
+              <TableCell colSpan={2}>
+                <Typography variant="caption">Table Reference</Typography>
+              </TableCell>
+            </TableRow>
+          </TableHead>
           <TableBody>
             {categories?.map((category) => (
-              <TableRow key={category.id}>
-                <TableCell>{category.name}</TableCell>
-                <TableCell>{category.reference}</TableCell>
-                <TableCell width="75px" align="right">
-                  <IconButton
-                    id="moreMenuButton"
-                    onClick={(e) => {
-                      setAnchorMoreDropDown(e.currentTarget);
-                      setEditCategoryData(category);
-                    }}
-                  >
-                    <MoreHorizIcon />
-                  </IconButton>
-                  <Menu
-                    id="moreMenu"
-                    anchorEl={anchorMoreDropDown}
-                    open={openMoreDropDown}
-                    onClose={() => setAnchorMoreDropDown(null)}
-                    MenuListProps={{
-                      "aria-labelledby": "moreMenuButton",
-                    }}
-                  >
-                    <MenuItem
-                      onClick={() => {
-                        setAnchorMoreDropDown(null);
-                        setOpenUpdateDialog(!openUpdateDialog);
-                      }}
-                    >
-                      Edit
-                    </MenuItem>
-                    <MenuItem
-                      sx={{ color: "danger.main" }}
-                      onClick={() => {
-                        setAnchorMoreDropDown(null);
-                        setOpenDeleteDialog(!openDeleteDialog);
-                      }}
-                    >
-                      Delete
-                    </MenuItem>
-                  </Menu>
-                  <UpdateCategoryDialog
-                    category={editCategoryData}
-                    openUpdateDialog={openUpdateDialog}
-                    setOpenUpdateDialog={setOpenUpdateDialog}
-                  />
-                  <DeleteCategoryDialog
-                    category={editCategoryData}
-                    openDeleteDialog={openDeleteDialog}
-                    setOpenDeleteDialog={setOpenDeleteDialog}
-                  />
-                </TableCell>
-              </TableRow>
+              <CategoryRows key={category.id} category={category} />
             ))}
           </TableBody>
         </Table>
@@ -212,27 +234,25 @@ const UpdateCategoryDialog = ({
   openUpdateDialog,
   setOpenUpdateDialog,
 }) => {
-  const { register, handleSubmit, reset } = useForm();
+  const { register, handleSubmit, reset, control } = useForm();
   const router = useRouter();
 
-  const handleUpdateCategory = (formData) => {
+  const handleUpdateCategory = async (formData) => {
     const { categoryName, categoryReference } = formData;
 
-    axios
-      .put(`${baseURL}/api/category/${category.id}`, {
+    try {
+      const res = await axios.put(`${baseURL}/api/category/${category.id}`, {
         name: categoryName,
         reference: categoryReference,
-      })
-      .then((res) => {
-        showSnackbar(`Successfully updated ${res.data.name}`, "success");
-        reset();
-      })
-      .finally(router.refresh("/settings/category"))
-      .catch((err) => {
-        showSnackbar(`error: ${err}`, "error");
       });
-
-    setOpenUpdateDialog(!openUpdateDialog);
+      setOpenUpdateDialog(!openUpdateDialog);
+      showSnackbar(`Successfully updated ${res.data.name}`, "success");
+      reset();
+    } catch (error) {
+      showSnackbar(`error: ${error}`, "error");
+    } finally {
+      router.refresh("/settings/category");
+    }
   };
 
   return (
@@ -257,12 +277,29 @@ const UpdateCategoryDialog = ({
                 {...register("categoryName")}
               />
             </FormControl>
-            <FormControl fullWidth variant="standard">
-              <InputLabel htmlFor="categoryReference">Reference</InputLabel>
-              <Input
-                id="categoryReference"
+            <FormControl variant="standard" fullWidth>
+              <InputLabel id="categoryReference">Reference</InputLabel>
+              <Controller
+                name="categoryReference"
+                control={control}
                 defaultValue={category?.reference}
-                {...register("categoryReference")}
+                rules={{ required: "This field is required" }}
+                render={({ field }) => (
+                  <Select
+                    labelId="categoryReference"
+                    {...field}
+                    value={field.value || ""}
+                    onChange={(e) => field.onChange(e.target.value)}
+                  >
+                    {["Income", "Expense", "Asset", "Liability"]?.map(
+                      (category) => (
+                        <MenuItem key={category} value={category}>
+                          {category}
+                        </MenuItem>
+                      )
+                    )}
+                  </Select>
+                )}
               />
             </FormControl>
           </Stack>
@@ -291,18 +328,16 @@ const DeleteCategoryDialog = ({
 }) => {
   const router = useRouter();
 
-  const handleDeleteCategory = () => {
-    axios
-      .delete(`${baseURL}/api/category/${category.id}`)
-      .then((res) => {
-        showSnackbar(`Successfully deleted ${res.data.name}`, "success");
-      })
-      .finally(router.refresh("/settings/category"))
-      .catch((err) => {
-        showSnackbar(`error: ${err}`, "error");
-      });
-
-    setOpenDeleteDialog(!openDeleteDialog);
+  const handleDeleteCategory = async () => {
+    try {
+      const res = await axios.delete(`${baseURL}/api/category/${category.id}`);
+      setOpenDeleteDialog(!openDeleteDialog);
+      showSnackbar(`Successfully deleted ${res.data.name}`, "success");
+    } catch (error) {
+      showSnackbar(`error: ${error}`, "error");
+    } finally {
+      router.refresh("/settings/category");
+    }
   };
 
   return (

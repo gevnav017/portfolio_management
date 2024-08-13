@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter, usePathname } from "next/navigation";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
 
 import Category from "./category";
 
@@ -11,24 +11,26 @@ import {
   ListItemButton,
   ListItemText,
   ListSubheader,
+  Typography,
 } from "@mui/material";
 
 const ListMenu = ({ categories }) => {
-  const [menuItemSelected, setMenuItemSelected] = useState("");
   const router = useRouter();
   const pathname = usePathname();
+  const params = useSearchParams();
+
+  const menuItemSelected = params.get("menu");
 
   const menuItems = [
-    { name: "Users", urlParams: { menu: "users" }, component: "" },
-    { name: "Category", urlParams: { menu: "category" }, component: <Category categories={categories} /> },
+    { name: "Users", component: "" },
+    {
+      name: "Category",
+      component: <Category categories={categories} />,
+    },
   ];
 
   return (
-    <Stack
-      direction="row"
-      justifyContent="space-between"
-      minHeight="100vh"
-    >
+    <Stack direction="row" justifyContent="space-between" minHeight="100vh">
       {/* side menu */}
       <Stack sx={{ width: "20%", p: 3, minWidth: 160 }}>
         <List
@@ -46,8 +48,7 @@ const ListMenu = ({ categories }) => {
               key={menuItem.name}
               selected={menuItemSelected === menuItem.name}
               onClick={() => {
-                setMenuItemSelected(menuItem.name);
-                router.push({pathname: pathname, query: {key: "value"}})
+                router.push(`${pathname}?menu=${menuItem.name}`);
               }}
             >
               <ListItemText primary={menuItem.name} />
@@ -58,16 +59,21 @@ const ListMenu = ({ categories }) => {
 
       {/* main section */}
       <Stack sx={{ flexGrow: 1 }}>
-        {menuItemSelected
-          ? menuItems?.map(
-              (menuItem) =>
-                menuItemSelected === menuItem.name && (
-                  <Stack key={menuItem.name} spacing={3}>
-                    {menuItem.component}
-                  </Stack>
-                )
-            )
-          : "select from menu"}
+        {menuItemSelected ? (
+          menuItems?.map(
+            (menuItem) =>
+              menuItemSelected === menuItem.name && (
+                <Stack key={menuItem.name} spacing={3}>
+                  {menuItem.component}
+                </Stack>
+              )
+          )
+        ) : (
+          <Stack p={3}>
+            <Typography variant="subtitle2" gutterBottom textAlign="center">No selection made</Typography>
+            <Typography variant="body" gutterBottom textAlign="center">Select from the menu item to begin</Typography>
+          </Stack>
+        )}
       </Stack>
     </Stack>
   );

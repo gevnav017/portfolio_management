@@ -70,6 +70,9 @@ const Rows = ({ category, incomes, categories }) => {
                     <TableCell component="th" scope="row">
                       {income.name}
                     </TableCell>
+                    <TableCell component="th" scope="row">
+                      {income.type}
+                    </TableCell>
                     <TableCell align="right">
                       {ccyFormat(income.amount)}
                     </TableCell>
