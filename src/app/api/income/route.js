@@ -18,7 +18,13 @@ export async function getIncomes() {
     ];
     const incomeCategories = uniqueCategories[0];
 
-    return { incomes, incomeTotal, incomeCategories };
+    const passiveIncomes = incomes.filter(income => income.type === "Passive")
+    const passiveIncomeTotal = passiveIncomes.reduce(
+      (acc, passiveIncome) => acc + parseFloat(passiveIncome.amount),
+      0
+    );
+
+    return { incomes, incomeTotal, incomeCategories, passiveIncomeTotal };
   } catch (err) {
     return { error: err };
   } finally {

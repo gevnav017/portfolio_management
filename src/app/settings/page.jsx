@@ -5,14 +5,6 @@ import { getCategories } from "../api/category/route";
 import {
   Stack,
   Typography,
-  List,
-  ListItemButton,
-  ListItemIcon,
-  ListItemText,
-  ListSubheader,
-  Collapse,
-  ExpandMore,
-  ExpandLess,
 } from "@mui/material";
 
 const Settings = async () => {

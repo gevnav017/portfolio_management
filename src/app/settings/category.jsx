@@ -29,6 +29,7 @@ import {
   Input,
   Paper,
   Button,
+  Select,
 } from "@mui/material";
 
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
@@ -42,15 +43,16 @@ const Category = ({ categories }) => {
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [editCategoryData, setEditCategoryData] = useState(null);
 
-  const { register, handleSubmit, reset } = useForm();
+  const { register, handleSubmit, reset, control } = useForm();
   const router = useRouter();
 
   const handleAddCategory = (formData) => {
-    const { categoryName } = formData;
+    const { categoryName, categoryReference } = formData;
 
     axios
       .post(`${baseURL}/api/category`, {
         name: categoryName,
+        reference: categoryReference,
       })
       .then((res) => {
         showSnackbar(`Successfully added ${res.data.name}`, "success");
@@ -60,7 +62,7 @@ const Category = ({ categories }) => {
         showSnackbar(`error: ${err}`, "error");
       });
 
-    setOpenNewCategoryDialog(false);
+    setOpenNewCategoryDialog(!openNewCategoryDialog);
   };
 
   return (
@@ -69,11 +71,12 @@ const Category = ({ categories }) => {
         <Table sx={{ minWidth: 700 }} aria-label="spanning table">
           <TableHead>
             <TableRow>
-              <TableCell>
+              <TableCell colSpan={2}>
                 <Typography variant="subtitle1">Category</Typography>
               </TableCell>
               <TableCell align="right">
                 <Button
+                  sx={{ whiteSpace: "nowrap" }}
                   onClick={() => {
                     setOpenNewCategoryDialog(!openNewCategoryDialog);
                   }}
@@ -87,6 +90,7 @@ const Category = ({ categories }) => {
             {categories?.map((category) => (
               <TableRow key={category.id}>
                 <TableCell>{category.name}</TableCell>
+                <TableCell>{category.reference}</TableCell>
                 <TableCell width="75px" align="right">
                   <IconButton
                     id="moreMenuButton"
@@ -144,7 +148,7 @@ const Category = ({ categories }) => {
       <Dialog
         open={openNewCategoryDialog}
         onClose={() => {
-          setOpenNewLiabilityEntry(false);
+          setOpenNewCategoryDialog(!openNewCategoryDialog);
         }}
       >
         <form onSubmit={handleSubmit(handleAddCategory)}>
@@ -157,6 +161,31 @@ const Category = ({ categories }) => {
               <FormControl fullWidth variant="standard">
                 <InputLabel htmlFor="categoryName">Name</InputLabel>
                 <Input id="categoryName" {...register("categoryName")} />
+              </FormControl>
+              <FormControl variant="standard" fullWidth>
+                <InputLabel id="categoryReference">Reference</InputLabel>
+                <Controller
+                  name="categoryReference"
+                  control={control}
+                  defaultValue=""
+                  rules={{ required: "This field is required" }}
+                  render={({ field }) => (
+                    <Select
+                      labelId="categoryReference"
+                      {...field}
+                      value={field.value || ""}
+                      onChange={(e) => field.onChange(e.target.value)}
+                    >
+                      {["Income", "Expense", "Asset", "Liability"]?.map(
+                        (category) => (
+                          <MenuItem key={category} value={category}>
+                            {category}
+                          </MenuItem>
+                        )
+                      )}
+                    </Select>
+                  )}
+                />
               </FormControl>
             </Stack>
           </DialogContent>
@@ -187,11 +216,12 @@ const UpdateCategoryDialog = ({
   const router = useRouter();
 
   const handleUpdateCategory = (formData) => {
-    const { categoryName } = formData;
+    const { categoryName, categoryReference } = formData;
 
     axios
       .put(`${baseURL}/api/category/${category.id}`, {
         name: categoryName,
+        reference: categoryReference,
       })
       .then((res) => {
         showSnackbar(`Successfully updated ${res.data.name}`, "success");
@@ -225,6 +255,14 @@ const UpdateCategoryDialog = ({
                 id="categoryName"
                 defaultValue={category?.name}
                 {...register("categoryName")}
+              />
+            </FormControl>
+            <FormControl fullWidth variant="standard">
+              <InputLabel htmlFor="categoryReference">Reference</InputLabel>
+              <Input
+                id="categoryReference"
+                defaultValue={category?.reference}
+                {...register("categoryReference")}
               />
             </FormControl>
           </Stack>
@@ -264,7 +302,7 @@ const DeleteCategoryDialog = ({
         showSnackbar(`error: ${err}`, "error");
       });
 
-    setOpenDeleteDialog(false);
+    setOpenDeleteDialog(!openDeleteDialog);
   };
 
   return (
@@ -272,7 +310,7 @@ const DeleteCategoryDialog = ({
       <Dialog
         open={openDeleteDialog}
         onClose={() => {
-          setOpenDeleteDialog(false);
+          setOpenDeleteDialog(!openDeleteDialog);
         }}
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
@@ -286,7 +324,7 @@ const DeleteCategoryDialog = ({
         <DialogActions>
           <Button
             onClick={() => {
-              setOpenDeleteDialog(false);
+              setOpenDeleteDialog(!openDeleteDialog);
             }}
           >
             Cancel

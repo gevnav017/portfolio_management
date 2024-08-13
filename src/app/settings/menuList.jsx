@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter, usePathname } from "next/navigation";
 
 import Category from "./category";
 
@@ -10,15 +11,16 @@ import {
   ListItemButton,
   ListItemText,
   ListSubheader,
-
 } from "@mui/material";
 
 const ListMenu = ({ categories }) => {
   const [menuItemSelected, setMenuItemSelected] = useState("");
+  const router = useRouter();
+  const pathname = usePathname();
 
   const menuItems = [
-    { name: "Users", component: "" },
-    { name: "Category", component: <Category categories={categories} /> },
+    { name: "Users", urlParams: { menu: "users" }, component: "" },
+    { name: "Category", urlParams: { menu: "category" }, component: <Category categories={categories} /> },
   ];
 
   return (
@@ -45,6 +47,7 @@ const ListMenu = ({ categories }) => {
               selected={menuItemSelected === menuItem.name}
               onClick={() => {
                 setMenuItemSelected(menuItem.name);
+                router.push({pathname: pathname, query: {key: "value"}})
               }}
             >
               <ListItemText primary={menuItem.name} />

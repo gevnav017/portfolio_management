@@ -31,6 +31,10 @@ export const AddAssetButtonDialog = ({ categories }) => {
   const { register, handleSubmit, reset, control } = useForm();
   const router = useRouter();
 
+  const filteredCategories = categories.filter(
+    (category) => category.reference === "Asset"
+  );
+
   // const { data, error, isLoading } = useSWR(baseURL + "api/asset", fetcher);
 
   const handleAddAsset = async (formData) => {
@@ -101,7 +105,7 @@ export const AddAssetButtonDialog = ({ categories }) => {
                       value={field.value || ""}
                       onChange={(e) => field.onChange(e.target.value)}
                     >
-                      {categories?.map((category) => (
+                      {filteredCategories?.map((category) => (
                         <MenuItem key={category.name} value={category.name}>
                           {category.name}
                         </MenuItem>
@@ -137,8 +141,11 @@ export const UpdateAssetDialog = ({
   setOpenUpdateDialog,
 }) => {
   const { register, handleSubmit, reset, control } = useForm();
-
   const router = useRouter();
+
+  const filteredCategories = categories.filter(
+    (category) => category.reference === "Asset"
+  );
 
   const handleUpdateAsset = async (formData) => {
     const { assetName, assetCategory, assetAmount } = formData;
@@ -204,7 +211,7 @@ export const UpdateAssetDialog = ({
                     value={field.value || ""}
                     onChange={(e) => field.onChange(e.target.value)}
                   >
-                    {categories?.map((category) => (
+                    {filteredCategories?.map((category) => (
                       <MenuItem key={category.id} value={category.name}>
                         {category.name}
                       </MenuItem>

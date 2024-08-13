@@ -34,6 +34,10 @@ export const AddExpenseButtonDialog = ({ categories }) => {
   const { register, handleSubmit, reset, control } = useForm();
   const router = useRouter();
 
+  const filteredCategories = categories.filter(
+    (category) => category.reference === "Expense"
+  );
+
   const handleAddExpense = async (formData) => {
     const { expenseName, expenseCategory, expenseAmount } = formData;
 
@@ -104,7 +108,7 @@ export const AddExpenseButtonDialog = ({ categories }) => {
                       value={field.value || ""}
                       onChange={(e) => field.onChange(e.target.value)}
                     >
-                      {categories?.map((category) => (
+                      {filteredCategories?.map((category) => (
                         <MenuItem key={category.name} value={category.name}>
                           {category.name}
                         </MenuItem>
@@ -145,8 +149,11 @@ export const UpdateExpenseDialog = ({
   setOpenUpdateDialog,
 }) => {
   const { register, handleSubmit, reset, control } = useForm();
-
   const router = useRouter();
+
+  const filteredCategories = categories.filter(
+    (category) => category.reference === "Expense"
+  );
 
   const handleUpdateExpense = async (formData) => {
     const { expenseName, expenseCategory, expenseAmount } = formData;
@@ -215,7 +222,7 @@ export const UpdateExpenseDialog = ({
                     value={field.value || ""}
                     onChange={(e) => field.onChange(e.target.value)}
                   >
-                    {categories?.map((category) => (
+                    {filteredCategories?.map((category) => (
                       <MenuItem key={category.id} value={category.name}>
                         {category.name}
                       </MenuItem>
@@ -278,7 +285,7 @@ export const DeleteExpenseDialog = ({
     try {
       const res = await axios.delete(`${baseURL}/api/expense/${expenseId}`);
       showSnackbar(`Successfully deleted ${res.data.name}`, "success");
-      setOpenDeleteDialog(false);
+      setOpenDeleteDialog(!openDeleteDialog);
     } catch (error) {
       showSnackbar(`error: ${error.message}`, "error");
     } finally {

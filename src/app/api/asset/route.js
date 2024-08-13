@@ -16,7 +16,13 @@ export async function getAssets() {
     const uniqueCategories = [new Set(assets.map((asset) => asset.category))];
     const assetCategories = uniqueCategories[0];
 
-    return { assets, assetTotal, assetCategories };
+    const cashAssets = assets.filter((asset) => asset.category === "Cash");
+    const cashTotal = cashAssets.reduce(
+      (acc, cash) => acc + parseFloat(cash.amount),
+      0
+    );
+
+    return { assets, assetTotal, assetCategories, cashTotal };
   } catch (err) {
     return { error: err };
   } finally {

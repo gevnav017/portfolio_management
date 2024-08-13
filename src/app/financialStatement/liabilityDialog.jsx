@@ -31,6 +31,10 @@ export const AddLiabilityButtonDialog = ({ categories }) => {
   const { register, handleSubmit, reset, control } = useForm();
   const router = useRouter();
 
+  const filteredCategories = categories.filter(
+    (category) => category.reference === "Liability"
+  );
+
   const handleAddLiability = async (formData) => {
     const { liabilityName, liabilityCategory, liabilityAmount } = formData;
 
@@ -102,7 +106,7 @@ export const AddLiabilityButtonDialog = ({ categories }) => {
                       value={field.value || ""}
                       onChange={(e) => field.onChange(e.target.value)}
                     >
-                      {categories?.map((category) => (
+                      {filteredCategories?.map((category) => (
                         <MenuItem key={category.name} value={category.name}>
                           {category.name}
                         </MenuItem>
@@ -138,8 +142,11 @@ export const UpdateLiabilityDialog = ({
   setOpenUpdateDialog,
 }) => {
   const { register, handleSubmit, reset, control } = useForm();
-
   const router = useRouter();
+
+  const filteredCategories = categories.filter(
+    (category) => category.reference === "Liability"
+  );
 
   const handleUpdateLiability = async (formData) => {
     const { liabilityName, liabilityCategory, liabilityAmount } = formData;
@@ -207,7 +214,7 @@ export const UpdateLiabilityDialog = ({
                     value={field.value || ""}
                     onChange={(e) => field.onChange(e.target.value)}
                   >
-                    {categories?.map((category) => (
+                    {filteredCategories?.map((category) => (
                       <MenuItem key={category.name} value={category.name}>
                         {category.name}
                       </MenuItem>
