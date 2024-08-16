@@ -1,4 +1,5 @@
 import { NewOptionButtonDialog } from "./optionDialog";
+import OptionsAccordion from "./accordion";
 
 import { Stack, Typography } from "@mui/material";
 
@@ -21,6 +22,7 @@ const Options = () => {
       </Stack>
 
       {/* accordion */}
+      <OptionsAccordion />
     </Stack>
   );
 };
