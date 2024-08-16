@@ -207,13 +207,14 @@ export const UpdateIncomeDialog = ({
   );
 
   const handleUpdateIncome = async (formData) => {
-    const { incomeName, incomeCategory, incomeAmount } = formData;
+    const { incomeName, incomeCategory, incomeAmount, incomeType } = formData;
 
     try {
       const res = await axios.put(`${baseURL}/api/income/${income?.id}`, {
         name: capFirstLetter(incomeName),
         category: incomeCategory,
         amount: incomeAmount,
+        type: incomeType,
       });
       setOpenUpdateDialog(!openUpdateDialog);
       showSnackbar(`Successfully updated ${res.data.name}`, "success");
@@ -279,8 +280,7 @@ export const UpdateIncomeDialog = ({
                 )}
               />
             </FormControl>
-
-            {/* <FormControl variant="standard" fullWidth>
+            <FormControl variant="standard" fullWidth>
               <InputLabel id="incomeType">Type</InputLabel>
               <Controller
                 name="incomeType"
@@ -302,7 +302,7 @@ export const UpdateIncomeDialog = ({
                   </Select>
                 )}
               />
-            </FormControl> */}
+            </FormControl>
           </Stack>
         </DialogContent>
         <DialogActions>

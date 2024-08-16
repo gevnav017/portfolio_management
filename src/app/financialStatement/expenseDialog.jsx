@@ -43,7 +43,7 @@ export const AddExpenseButtonDialog = ({ categories }) => {
 
     try {
       const res = await axios.post(`${baseURL}/api/expense`, {
-        name: expenseName,
+        name: capFirstLetter(expenseName),
         category: expenseCategory,
         amount: expenseAmount,
       });

@@ -86,6 +86,7 @@ export const AddLiabilityButtonDialog = ({ categories }) => {
                 <InputLabel htmlFor="liabilityAmount">Amount</InputLabel>
                 <Input
                   id="liabilityAmount"
+                  type="number"
                   {...register("liabilityAmount")}
                   startAdornment={
                     <InputAdornment position="start">$</InputAdornment>

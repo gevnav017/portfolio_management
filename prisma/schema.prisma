@@ -8,40 +8,62 @@ datasource db {
 }
 
 model category {
-  id String @id @default(uuid())
-  name String
+  id        String   @id @default(uuid())
+  name      String
   reference String
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
 }
 
 model income {
-  id String @id @default(uuid())
-  category String
-  type String
-  name String
-  amount Decimal
+  id        String   @id @default(uuid())
+  category  String
+  type      String
+  name      String
+  amount    Decimal
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
 }
 
 model expense {
-  id String @id @default(uuid())
+  id       String  @id @default(uuid())
   category String
-  name String
-  amount Decimal
+  name     String
+  amount   Decimal
 }
 
 model asset {
-  id String @id @default(uuid())
+  id       String  @id @default(uuid())
   category String
-  name String
-  amount Decimal
+  name     String
+  amount   Decimal
 }
 
 model liability {
-  id String @id @default(uuid())
+  id       String  @id @default(uuid())
   category String
-  name String
-  amount Decimal
+  name     String
+  amount   Decimal
+}
+
+model option {
+  id          String   @id @default(uuid())
+  symbol      String
+  contractQty Int
+  expireDate  DateTime
+  strikePrice Int
+  tradeSide   String
+  optionType  String
+  optionPrice Int
+  tradeDate   DateTime
+  strategy    String
+}
+
+model stock {
+  id        String   @id @default(uuid())
+  symbol    String
+  stockQty  Int
+  tradeSide String
+  tradeDate DateTime
+  strategy  String
 }

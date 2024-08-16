@@ -85,6 +85,7 @@ export const AddAssetButtonDialog = ({ categories }) => {
                 <InputLabel htmlFor="assetAmount">Amount</InputLabel>
                 <Input
                   id="assetAmount"
+                  type="number"
                   {...register("assetAmount")}
                   startAdornment={
                     <InputAdornment position="start">$</InputAdornment>
