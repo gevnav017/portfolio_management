@@ -50,7 +50,10 @@ const FinancialStatement = async () => {
         </Typography>
       </Stack>
 
-      <Stack direction="row" justifyContent="space-between">
+      <Stack
+        direction={{xs: "column", md: "row"}}
+        
+      >
         {/* side column 1 */}
         <Stack spacing={3} p={2}>
           {/* income table */}

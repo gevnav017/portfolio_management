@@ -1,9 +1,7 @@
-const Container = ({ children }) => {
-  return (
-    <div className="sm:container mx-auto">
-      <div>{children}</div>
-    </div>
-  );
+import { Container } from "@mui/material";
+
+const ContainerProvider = ({ children }) => {
+  return <Container maxWidth="xl">{children}</Container>;
 };
 
-export default Container;
+export default ContainerProvider;

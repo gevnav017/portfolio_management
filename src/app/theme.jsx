@@ -2,7 +2,7 @@
 
 import { createTheme, ThemeProvider } from "@mui/material";
 
-import Container from "./container";
+import ContainerProvider from "./container";
 import Header from "./header";
 import Snackbar from "./snackbar";
 
@@ -55,7 +55,7 @@ const Theme = ({ children }) => {
   return (
     <ThemeProvider theme={theme}>
       <Header />
-      <Container children={children} />
+      <ContainerProvider children={children} />
       <Snackbar />
     </ThemeProvider>
   );
