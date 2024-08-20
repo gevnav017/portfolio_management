@@ -54,6 +54,14 @@ const OptionsAccordion = () => {
     console.log(e);
   };
 
+  const handleOptionMarkClose = (e) => {
+    console.log(e)
+  }
+
+  const handleOptionMarkOpen = (e) => {
+    console.log(e)
+  }
+
   const optionTableTitles = [
     "Qty",
     "DTE",
@@ -78,18 +86,18 @@ const OptionsAccordion = () => {
     "Stock P/L",
   ];
 
-  // const optionDropDownMenu = [
-  //   {
-  //     close: { name: "Mark as Closed", onClickFunctions: handleOptionMarkClose },
-  //     open: { name: "Mark as Open", onClickFunctions: handleOptionMarkOpen },
-  //   },
-  //   {name: "Edit Position", onClickFunctions: handleOptionEdit },
-  //   {name: "Close Position", onClickFunctions: handleOptionClose },
-  //   {name: "Roll Position", onClickFunctions: handleOptionRoll },
-  //   {name: "Notes", onClickFunctions: handleOptionNotes },
-  //   {name: "Shares Called Away", onClickFunctions: handleOptionAssigned },
-  //   {name: "Delete Position", color: "danger.main", onClickFunctions: handleOptionDelete }
-  // ];
+  const optionDropDownMenu = [
+    {
+      close: { name: "Mark as Closed", onClickFunctions: handleOptionMarkClose },
+      open: { name: "Mark as Open", onClickFunctions: handleOptionMarkOpen },
+    },
+    {name: "Edit Position", onClickFunctions: setOpenUpdateDialog },
+    {name: "Close Position", onClickFunctions: handleOptionMarkClose },
+    {name: "Roll Position", onClickFunctions: handleOptionMarkClose },
+    {name: "Notes", onClickFunctions: handleOptionMarkClose },
+    {name: "Shares Called Away", onClickFunctions: handleOptionMarkClose },
+    {name: "Delete Position", color: "danger.main", onClickFunctions: setOpenDeleteDialog }
+  ];
 
   return (
     <>
