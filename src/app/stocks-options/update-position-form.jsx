@@ -3,7 +3,7 @@
 // route imports
 import { useEffect } from "react";
 import { useForm, Controller } from "react-hook-form";
-import useStocksStore from "../../../store/stocksStore";
+import useStocksStore from "@/store/stocksStore";
 
 // MUI imports
 import {

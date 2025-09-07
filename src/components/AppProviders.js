@@ -10,10 +10,14 @@ import Nav from "./Nav";
 import { Container } from "@mui/material";
 
 export default function AppProviders({ children }) {
+  const pathname =
+    typeof window !== "undefined" ? window.location.pathname : "";
+  const showNav = pathname !== "/auth/signin";
+
   return (
     <ThemeProviderWrapper>
       <SessionProviderWrapper>
-        <Nav />
+        {showNav && <Nav />}
         <Container maxWidth="xl" sx={{ pt: 10, pb: 6 }}>
           {children}
         </Container>

@@ -10,19 +10,19 @@ import { Stack } from "@mui/material";
 
 const FinancialStatement = () => {
   return (
-    <>
+    <Stack spacing={2}>
       <ExpenseRatioChart />
       <Stack direction="row" spacing={2}>
-        <Stack flex={1}>
+        <Stack spacing={2} flex={1}>
           <IncomeTable />
           <ExpenseTable />
         </Stack>
-        <Stack flex={1}>
+        <Stack spacing={2} flex={1}>
           <AssetsTable />
           <LiabilitiesTable />
         </Stack>
       </Stack>
-    </>
+    </Stack>
   );
 };
 

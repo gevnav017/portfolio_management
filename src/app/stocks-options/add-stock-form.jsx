@@ -3,12 +3,12 @@
 // route imports
 import { useForm, Controller } from "react-hook-form";
 import { capAllLetters } from "../../lib/cap-letters";
-import useStocksStore from "../../../store/stocksStore";
+import useStocksStore from "@/store/stocksStore";
 
 // MUI imports
 import {
   Drawer,
-  DialogTitle,
+  DialogTitle, 
   DialogContent,
   DialogActions,
   Button,

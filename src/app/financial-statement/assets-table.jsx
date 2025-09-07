@@ -1,5 +1,6 @@
 //route imports
 import { UpdateDeleteIconButton } from "@/components/CustomButtons";
+import TitleBar from "@/components/TitleBar";
 
 // MUI imports
 import {
@@ -22,45 +23,46 @@ import {
 
 const AssetsTable = () => {
   return (
-    <TableContainer
-      component={Paper}
-      elevation={0}
-      sx={{
-        border: "solid 1px silver",
-        borderRadius: 4,
-        maxHeight: "calc(100vh - 205px)",
-        overflowY: "auto",
-      }}
-    >
-      <Table stickyHeader>
-        <TableHead>
-          <TableRow>
-            <TableCell>Namef</TableCell>
-            <TableCell>Amount</TableCell>
-            <TableCell />
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {[1, 2].length > 0 ? (
-            [1, 2].map((el) => (
-              <TableRow key={el.id}>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-                <TableCell align="right">
-                  <UpdateDeleteIconButton />
+    <Stack spacing={2}>
+      <TitleBar title="Assets" />
+      <TableContainer
+        component={Paper}
+        elevation={0}
+        sx={{
+          border: "solid 1px silver",
+          borderRadius: 4,
+        }}
+      >
+        <Table stickyHeader>
+          <TableHead>
+            <TableRow>
+              <TableCell>Namef</TableCell>
+              <TableCell>Amount</TableCell>
+              <TableCell />
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {[1, 2].length > 0 ? (
+              [1, 2].map((el) => (
+                <TableRow key={el.id}>
+                  <TableCell></TableCell>
+                  <TableCell></TableCell>
+                  <TableCell align="right">
+                    <UpdateDeleteIconButton />
+                  </TableCell>
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={100} align="center">
+                  <NoDataFound label="No options found. Click 'New Entry' to add one." />
                 </TableCell>
               </TableRow>
-            ))
-          ) : (
-            <TableRow>
-              <TableCell colSpan={100} align="center">
-                <NoDataFound label="No options found. Click 'New Entry' to add one." />
-              </TableCell>
-            </TableRow>
-          )}
-        </TableBody>
-      </Table>
-    </TableContainer>
+            )}
+          </TableBody>
+        </Table>
+      </TableContainer>
+    </Stack>
   );
 };
 

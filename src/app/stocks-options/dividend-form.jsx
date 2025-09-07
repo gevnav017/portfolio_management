@@ -2,7 +2,7 @@
 
 // route imports
 import { useForm, Controller } from "react-hook-form";
-import useOptionsStore from "../../../store/optionsStore";
+import useOptionsStore from "@/store/optionsStore";
 
 // MUI imports
 import {

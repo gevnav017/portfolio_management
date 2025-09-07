@@ -1,6 +1,6 @@
 import { create } from "zustand";
-import axiosInstance from "../src/lib/axios-instance";
-import { showSnackbar } from "../src/lib/show-snackbar";
+import axiosInstance from "@/lib/axios-instance";
+import { showSnackbar } from "@/lib/show-snackbar";
 
 const useOptionsStore = create((set) => ({
   options: [],
