@@ -8,10 +8,10 @@ import Nav from "./Nav";
 
 // MUI imports
 import { Container } from "@mui/material";
+import { usePathname } from "next/navigation";
 
 export default function AppProviders({ children }) {
-  const pathname =
-    typeof window !== "undefined" ? window.location.pathname : "";
+  const pathname = usePathname();
   const showNav = pathname !== "/auth/signin";
 
   return (

@@ -13,8 +13,12 @@ model User {
   email    String @unique
   password String
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  LiquidPositions LiquidPositions[]
+  Stocks          Stocks[]
+  Options         Options[]
+  Cryptos         Cryptos[]
 }
 
 model LiquidPositions {
@@ -23,18 +27,29 @@ model LiquidPositions {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  editUser   User   @relation(fields: [editUserId], references: [id])
+  editUserId String
 }
 
 model Stocks {
-  id            String  @id @default(cuid())
+  id            String   @id @default(cuid())
   symbol        String
   quantity      Int
+  side          String
+  type          String   @default("Stock")
   purchasePrice Float
   sellPrice     Float?
-  status        Boolean @default(true)
+  debit         Float?
+  credit        Float?
+  tradeDate     DateTime
+  status        Boolean  @default(true)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  editUser   User   @relation(fields: [editUserId], references: [id])
+  editUserId String
 }
 
 model Options {
@@ -44,24 +59,34 @@ model Options {
   tradeDate      DateTime
   expirationDate DateTime
   strike         Float
+  type           String   @default("Option")
   side           String
-  type           String
-  credit         Float
-  debit          Float
+  credit         Float?
+  debit          Float?
   status         Boolean  @default(true)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  editUser   User   @relation(fields: [editUserId], references: [id])
+  editUserId String
 }
 
 model Cryptos {
-  id            String  @id @default(cuid())
+  id            String   @id @default(cuid())
   symbol        String
   purchasePrice Float
   quantity      Int
-  sellPrice     Float
-  status        Boolean @default(true)
+  type          String   @default("Crypto")
+  sellPrice     Float?
+  debit         Float?
+  credit        Float?
+  tradeDate     DateTime
+  status        Boolean  @default(true)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  editUser   User   @relation(fields: [editUserId], references: [id])
+  editUserId String
 }

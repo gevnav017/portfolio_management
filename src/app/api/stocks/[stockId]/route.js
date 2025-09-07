@@ -2,7 +2,7 @@
 
 import { NextResponse } from "next/server";
 import { userSession } from "@/components/user-server-session";
-import db from "@/db/db.mjs";
+import db from "@/lib/prisma";
 import { formatPrismaError } from "@/components/api-errors";
 
 // get project
@@ -23,13 +23,6 @@ export async function GET(req, { params }) {
     const project = await db.projects.findUnique({
       where: {
         id: projectId,
-        deactivatedDate: null,
-        organizationId,
-      },
-      include: {
-        tiers: true,
-        superintendent: true,
-        qualityControlManager: true,
       },
     });
 
@@ -51,14 +44,11 @@ export async function DELETE(req, { params }) {
       return user;
     }
 
-    const organizationId = user.organizationId;
-
     const { projectId } = params;
 
     const deletedProject = await db.projects.delete({
       where: {
         id: projectId,
-        organizationId,
       },
     });
 

@@ -22,7 +22,6 @@ export const lightPalette = {
   action: {
     hover: "#50b3faff",
     selected: "#1976d2",
-    active: "#90caf9",
     contrastText: "#ffffff",
   },
   secondaryIcon: {
@@ -53,7 +52,6 @@ export const darkPalette = {
   action: {
     hover: "#1e88e5", // stronger blue hover
     selected: "#1565c0", // deeper highlight
-    active: "#90caf9",
     contrastText: "#ffffff",
   },
   divider: "#2e2e2e", // subtle divider

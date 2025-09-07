@@ -16,7 +16,7 @@ const useStocksStore = create((set) => ({
       set({ errorMsg: `Error: ${error}`, isLoading: false });
     }
   },
-
+ 
   addStock: async (data) => {
     try {
       set({ isLoading: true });

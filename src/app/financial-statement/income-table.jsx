@@ -37,7 +37,7 @@ const IncomeTable = () => {
         <Table stickyHeader>
           <TableHead>
             <TableRow>
-              <TableCell>Namef</TableCell>
+              <TableCell>Name</TableCell>
               <TableCell>Amount</TableCell>
               <TableCell />
             </TableRow>
@@ -45,7 +45,7 @@ const IncomeTable = () => {
           <TableBody>
             {[1, 2].length > 0 ? (
               [1, 2].map((el) => (
-                <TableRow key={el.id}>
+                <TableRow key={el}>
                   <TableCell></TableCell>
                   <TableCell></TableCell>
                   <TableCell align="right">

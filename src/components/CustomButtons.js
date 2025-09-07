@@ -53,7 +53,7 @@ export const UpdateDeleteIconButton = ({
           setSelected(selected);
         }}
       >
-        <MoreHorizIcon color="secondary" />
+        <MoreHorizIcon />
       </IconButton>
       <Menu
         id="moreMenu"
@@ -110,7 +110,7 @@ export const StockMoreButton = ({
           setSelected(selected);
         }}
       >
-        <MoreHorizIcon color="secondary" />
+        <MoreHorizIcon/>
       </IconButton>
       <Menu
         id="moreMenu"
@@ -205,7 +205,7 @@ export const OptionMoreButton = ({
           setSelected(selected);
         }}
       >
-        <MoreHorizIcon color="secondary" />
+        <MoreHorizIcon />
       </IconButton>
       <Menu
         id="moreMenu"
@@ -286,7 +286,7 @@ export const CryptoMoreButton = ({
           setSelected(selected);
         }}
       >
-        <MoreHorizIcon color="secondary" />
+        <MoreHorizIcon/>
       </IconButton>
       <Menu
         id="moreMenu"

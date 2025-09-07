@@ -13,6 +13,8 @@ import AddOptionForm from "./add-option-form";
 import DividendForm from "./dividend-form";
 import { UpdateForm, DeleteForm } from "./update-symbol-form";
 import NoDataFound from "@/components/NoDataFound";
+import { toMoney } from "@/lib/format";
+import useStocksStore from "@/store/stocksStore";
 
 // MUI imports
 import {
@@ -39,7 +41,6 @@ import AddCircleOutlineOutlinedIcon from "@mui/icons-material/AddCircleOutlineOu
 import MonetizationOnOutlinedIcon from "@mui/icons-material/MonetizationOnOutlined";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
-import { set } from "react-hook-form";
 
 const SymbolRows = ({
   symbol,
@@ -63,7 +64,7 @@ const SymbolRows = ({
       <AccordionSummary
         id={`panel-header-${symbol.id}`}
         component="div"
-        expandIcon={<ExpandMoreIcon color="secondary" />}
+        expandIcon={<ExpandMoreIcon />}
       >
         <Stack
           direction="row"
@@ -71,13 +72,12 @@ const SymbolRows = ({
           alignItems="center"
           sx={{ width: "100%" }}
         >
-          <Typography>{symbol.Symbol}</Typography>
+          <Typography>{symbol.symbol}</Typography>
           <Typography>
             P/L: ${symbol.PL} - {symbol.Change}
           </Typography>
           <Stack direction="row" spacing={1} alignItems="center" mr={2}>
             <CustomIconButton
-              color="secondary"
               icon={<EditOutlinedIcon />}
               onClick={(e) => {
                 e.stopPropagation();
@@ -86,7 +86,6 @@ const SymbolRows = ({
               }}
             />
             <CustomIconButton
-              color="secondary"
               icon={<MonetizationOnOutlinedIcon />}
               onClick={(e) => {
                 e.stopPropagation();
@@ -95,7 +94,6 @@ const SymbolRows = ({
               }}
             />
             <CustomIconButton
-              color="secondary"
               icon={<DeleteOutlinedIcon />}
               onClick={(e) => {
                 e.stopPropagation();
@@ -135,16 +133,24 @@ const SymbolRows = ({
               {filteredPositions.length > 0 ? (
                 filteredPositions.map((position) => (
                   <TableRow key={position.id}>
-                    <TableCell>{position.Qty}</TableCell>
-                    <TableCell>{position.DTE}</TableCell>
-                    <TableCell>{position.Price}</TableCell>
-                    <TableCell>{position.Strike}</TableCell>
-                    <TableCell>{position.Side}</TableCell>
-                    <TableCell>{position.Type}</TableCell>
-                    <TableCell>{position.Credit}</TableCell>
-                    <TableCell>{position.Debit}</TableCell>
+                    <TableCell>{position.quantity ?? "-"}</TableCell>
+                    <TableCell>{position.dte ?? "-"}</TableCell>
+                    <TableCell>
+                      {position.purchasePrice != null
+                        ? toMoney(position.purchasePrice)
+                        : "-"}
+                    </TableCell>
+                    <TableCell>{position.strike ?? "-"}</TableCell>
+                    <TableCell>{position.side ?? "-"}</TableCell>
+                    <TableCell>{position.type ?? "-"}</TableCell>
+                    <TableCell>
+                      {position.credit != null ? toMoney(position.credit) : "-"}
+                    </TableCell>
+                    <TableCell>
+                      {position.debit != null ? toMoney(position.debit) : "-"}
+                    </TableCell>
                     <TableCell align="right">
-                      {position.Type === "Stock" ? (
+                      {position.type === "Stock" ? (
                         <StockMoreButton
                           openUpdate={openForm.update}
                           setOpenUpdate={setOpenForm}
@@ -223,55 +229,24 @@ export default function StocksOptionsTable() {
   const [selected, setSelected] = useState(null);
   const [filter, setFilter] = useState("all");
 
-  // Dummy positions data
-  const positions = [
-    {
-      id: 1,
-      Symbol: "TGT",
-      Qty: 100,
-      DTE: 30,
-      Type: "Stock",
-      Side: "Long",
-      Price: 120.5,
-      CurrentPrice: 130.2,
-      PL: 970,
-      Change: "8.1%",
-    },
-    {
-      id: 2,
-      Symbol: "KO",
-      Qty: 50,
-      Type: "Option",
-      Side: "Short",
-      Price: 45.0,
-      CurrentPrice: 42.5,
-      PL: -125,
-      Change: "-5.6%",
-    },
-    {
-      id: 3,
-      Symbol: "KO",
-      Qty: 100,
-      Type: "Option",
-      Side: "Short",
-      Price: 47.0,
-      CurrentPrice: 42.5,
-      PL: -125,
-      Change: "-8.6%",
-    },
-  ];
+  const { stocks, getStocks } = useStocksStore();
 
+  useEffect(() => {
+    getStocks();
+  }, [getStocks]);
+
+  // get unique symbols from stocks
   const uniqueSymbols = Object.values(
-    positions.reduce((acc, pos) => {
-      acc[pos.Symbol] = acc[pos.Symbol] || pos; // keep first occurrence
+    stocks.reduce((acc, stock) => {
+      acc[stock.symbol] = acc[stock.symbol] || stock; // keep first occurrence
       return acc;
     }, {})
-  );
+  ).sort((a, b) => a.symbol.localeCompare(b.symbol));
 
   const filteredPositions =
     filter === "all"
-      ? positions
-      : positions.filter((p) => {
+      ? stocks
+      : stocks.filter((p) => {
           const status =
             typeof p.status === "string"
               ? p.status.toLowerCase()
@@ -357,7 +332,7 @@ export default function StocksOptionsTable() {
             key={symbol.id}
             symbol={symbol}
             filteredPositions={filteredPositions.filter(
-              (s) => s.Symbol === symbol.Symbol
+              (s) => s.symbol === symbol.symbol
             )}
             selected={selected}
             setSelected={setSelected}

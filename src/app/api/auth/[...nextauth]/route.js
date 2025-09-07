@@ -53,15 +53,31 @@ export const authOptions = {
   session: { strategy: "jwt" },
   pages: { signIn: "/auth/signin" },
   callbacks: {
+    // Called whenever a JWT is created/updated
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
-        token.name = user.name;
         token.email = user.email;
+        token.name = user.name;
       }
+
+      // 🔑 Check if user still exists in DB
+      if (token?.id) {
+        const dbUser = await db.user.findUnique({
+          where: { id: token.id },
+        });
+        if (!dbUser) {
+          // remove token if user not found
+          return null;
+        }
+      }
+
       return token;
     },
+
+    // Called whenever a session is checked
     async session({ session, token }) {
+      if (!token) return null; // ensures logout if jwt returned null
       session.user.id = token.id;
       session.user.name = token.name;
       session.user.email = token.email;

@@ -8,7 +8,7 @@ import useStocksStore from "@/store/stocksStore";
 // MUI imports
 import {
   Drawer,
-  DialogTitle, 
+  DialogTitle,
   DialogContent,
   DialogActions,
   Button,
@@ -16,6 +16,7 @@ import {
   CircularProgress,
   Stack,
   InputAdornment,
+  MenuItem,
 } from "@mui/material";
 import { showSnackbar } from "@/lib/show-snackbar";
 
@@ -34,15 +35,17 @@ export default function AddStockForm({ open, onClose }) {
     try {
       const data = {
         symbol: capAllLetters(formData.symbol),
-        quantity: formData.qty,
-        purchasePrice: formData.purchasePrice,
+        quantity: parseInt(formData.qty, 10),
+        purchasePrice: parseFloat(formData.purchasePrice),
+        side: formData.side,
+        tradeDate: new Date(formData.tradeDate),
       };
 
       await addStock(data);
       onClose();
       reset();
     } catch (err) {
-      showSnackbar("Error adding stock");
+      showSnackbar("Error adding stock", "error");
     }
   };
 
@@ -104,6 +107,42 @@ export default function AddStockForm({ open, onClose }) {
                   fullWidth
                   error={!!errors.purchasePrice}
                   helperText={errors.purchasePrice?.message}
+                />
+              )}
+            />
+            <Controller
+              name="side"
+              control={control}
+              defaultValue=""
+              rules={{ required: "This field is required" }}
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  select
+                  label="Side"
+                  fullWidth
+                  error={!!errors.side}
+                  helperText={errors.side?.message}
+                >
+                  <MenuItem value="Buy">Buy</MenuItem>
+                  <MenuItem value="Sell">Sell</MenuItem>
+                </TextField>
+              )}
+            />
+            <Controller
+              name="tradeDate"
+              control={control}
+              defaultValue=""
+              rules={{ required: "This field is required" }}
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  label="Trade Date"
+                  fullWidth
+                  type="date"
+                  error={!!errors.tradeDate}
+                  helperText={errors.tradeDate?.message}
+                  slotProps={{ inputLabel: { shrink: true } }}
                 />
               )}
             />

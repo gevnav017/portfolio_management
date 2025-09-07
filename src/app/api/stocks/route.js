@@ -1,25 +1,29 @@
 "use server";
 
 import { NextResponse } from "next/server";
-import db from "../../../db/db";
-import { getServerSession } from "next-auth";
+import db from "@/lib/prisma";
 import { formatPrismaError } from "../../../lib/api-error-handling";
+import { authOptions } from "../auth/[...nextauth]/route";
+import { getServerSession } from "next-auth";
 
 // get stocks
 export async function GET(req) {
   try {
-    // Authenticate and verify user
-    // const user = await useServerSession();
+    // get session
+    const { user } = await getServerSession(authOptions);
 
-    // // If the response is a redirect, return it immediately
-    // if (user instanceof NextResponse) {
-    //   return user;
-    // }
+    // if not logged in, return 401
+    if (!user) {
+      return NextResponse.json(
+        { success: false, message: "Not authenticated" },
+        { status: 401 }
+      );
+    }
 
+    // query stocks tied to this user
     const stocks = await db.stocks.findMany({
       where: {
-        userId: user.id,
-        deactivatedDate: null,
+        editUserId: user.id,
       },
     });
 
@@ -52,22 +56,25 @@ export async function GET(req) {
 }
 
 // post new stock
-export async function POST(req) {
+export async function POST(req) { 
   try {
-    // Authenticate and verify user
-    // const user = await userSession();
+    // get session
+    const { user } = await getServerSession(authOptions);
 
-    // // If the response is a redirect, return it immediately
-    // if (user instanceof NextResponse) {
-    //   return user;
-    // }
+    // if not logged in, return 401
+    if (!user) {
+      return NextResponse.json(
+        { success: false, message: "Not authenticated" },
+        { status: 401 }
+      );
+    }
 
     const data = await req.json();
-console.log(data)
+
     const addedStock = await db.stocks.create({
       data: {
         ...data,
-        userId: user.id,
+        editUserId: user.id,
       },
     });
 
