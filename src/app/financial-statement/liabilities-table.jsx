@@ -1,0 +1,67 @@
+//route imports
+import { UpdateDeleteIconButton } from "@/components/CustomButtons";
+
+// MUI imports
+import {
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  TableFooter,
+  Paper,
+  Stack,
+  Typography,
+  Chip,
+  Grid,
+} from "@mui/material";
+
+const LiabilitiesTable = () => {
+  return (
+    <TableContainer
+      component={Paper}
+      elevation={0}
+      sx={{
+        border: "solid 1px silver",
+        borderRadius: 4,
+        maxHeight: "calc(100vh - 205px)",
+        overflowY: "auto",
+      }}
+    >
+      <Table stickyHeader>
+        <TableHead>
+          <TableRow>
+            <TableCell>Namef</TableCell>
+            <TableCell>Amount</TableCell>
+            <TableCell />
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {[1, 2].length > 0 ? (
+            [1, 2].map((el) => (
+              <TableRow key={el.id}>
+                <TableCell></TableCell>
+                <TableCell></TableCell>
+                <TableCell align="right">
+                  <UpdateDeleteIconButton />
+                </TableCell>
+              </TableRow>
+            ))
+          ) : (
+            <TableRow>
+              <TableCell colSpan={100} align="center">
+                <NoDataFound label="No options found. Click 'New Entry' to add one." />
+              </TableCell>
+            </TableRow>
+          )}
+        </TableBody>
+      </Table>
+    </TableContainer>
+  );
+};
+
+export default LiabilitiesTable;
