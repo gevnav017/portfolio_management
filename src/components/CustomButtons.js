@@ -86,14 +86,10 @@ export const UpdateDeleteIconButton = ({
 };
 
 export const StockMoreButton = ({
-  openUpdate,
-  setOpenUpdate,
-  openDelete,
-  setOpenDelete,
-  openNotes,
-  setOpenNotes,
-  openCoveredCall,
-  setOpenCoveredCall,
+  onCloseUpdate,
+  onCloseDelete,
+  onCloseNotes,
+  onCloseCoveredCall,
   selected,
   setSelected,
 }) => {
@@ -110,7 +106,7 @@ export const StockMoreButton = ({
           setSelected(selected);
         }}
       >
-        <MoreHorizIcon/>
+        <MoreHorizIcon />
       </IconButton>
       <Menu
         id="moreMenu"
@@ -130,7 +126,7 @@ export const StockMoreButton = ({
           onClick={(e) => {
             e.stopPropagation();
             setAnchorMoreDropDown(null);
-            setOpenNotes(!openNotes);
+            onCloseNotes();
           }}
         >
           Notes
@@ -139,7 +135,7 @@ export const StockMoreButton = ({
           onClick={(e) => {
             e.stopPropagation();
             setAnchorMoreDropDown(null);
-            setOpenUpdate(!openUpdate);
+            onCloseUpdate();
           }}
         >
           Close Position
@@ -148,7 +144,7 @@ export const StockMoreButton = ({
           onClick={(e) => {
             e.stopPropagation();
             setAnchorMoreDropDown(null);
-            setOpenCoveredCall(!openCoveredCall);
+            onCloseCoveredCall();
           }}
         >
           Open Covered Call
@@ -165,7 +161,7 @@ export const StockMoreButton = ({
           onClick={(e) => {
             e.stopPropagation();
             setAnchorMoreDropDown(null);
-            setOpenUpdate(!openUpdate);
+            onCloseUpdate();
           }}
         >
           Edit
@@ -175,7 +171,7 @@ export const StockMoreButton = ({
           onClick={(e) => {
             e.stopPropagation();
             setAnchorMoreDropDown(null);
-            setOpenDelete(!openDelete);
+            onCloseDelete();
           }}
         >
           Delete
@@ -234,7 +230,7 @@ export const OptionMoreButton = ({
           onClick={(e) => {
             e.stopPropagation();
             setAnchorMoreDropDown(null);
-            setOpenUpdate(!openUpdate);
+            // onClosePosition();
           }}
         >
           Close Position
@@ -264,12 +260,9 @@ export const OptionMoreButton = ({
 };
 
 export const CryptoMoreButton = ({
-  openUpdate,
-  setOpenUpdate,
-  openDelete,
-  setOpenDelete,
-  openNotes,
-  setOpenNotes,
+  onCloseUpdate,
+  onCloseDelete,
+  onCloseNotes,
   selected,
   setSelected,
 }) => {
@@ -286,7 +279,7 @@ export const CryptoMoreButton = ({
           setSelected(selected);
         }}
       >
-        <MoreHorizIcon/>
+        <MoreHorizIcon />
       </IconButton>
       <Menu
         id="moreMenu"
@@ -298,7 +291,7 @@ export const CryptoMoreButton = ({
           onClick={(e) => {
             e.stopPropagation();
             setAnchorMoreDropDown(null);
-            setOpenNotes(!openNotes);
+            onCloseNotes();
           }}
         >
           Notes
@@ -307,7 +300,7 @@ export const CryptoMoreButton = ({
           onClick={(e) => {
             e.stopPropagation();
             setAnchorMoreDropDown(null);
-            setOpenUpdate(!openUpdate);
+            // onCloseUpdate(!openUpdate);
           }}
         >
           Close Position
@@ -316,7 +309,7 @@ export const CryptoMoreButton = ({
           onClick={(e) => {
             e.stopPropagation();
             setAnchorMoreDropDown(null);
-            setOpenUpdate(!openUpdate);
+            onCloseUpdate();
           }}
         >
           Edit
@@ -326,7 +319,7 @@ export const CryptoMoreButton = ({
           onClick={(e) => {
             e.stopPropagation();
             setAnchorMoreDropDown(null);
-            setOpenDelete(!openDelete);
+            onCloseDelete();
           }}
         >
           Delete

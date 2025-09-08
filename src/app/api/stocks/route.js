@@ -59,7 +59,7 @@ export async function GET(req) {
     return NextResponse.json(
       {
         success: false,
-        message: "An error occurred while fetching stocks",
+        message: "An error occurred while fetching data",
       },
       { status: 500 }
     );
@@ -111,7 +111,7 @@ export async function POST(req) {
     return NextResponse.json(
       {
         success: false,
-        message: "An error occurred while saving stock",
+        message: "An error occurred while saving data",
       },
       { status: 500 }
     );

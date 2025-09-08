@@ -3,64 +3,49 @@
 import { NextResponse } from "next/server";
 import { userSession } from "@/components/user-server-session";
 import db from "@/lib/prisma";
-import { formatPrismaError } from "@/components/api-errors";
+import { formatPrismaError } from "@/lib/api-error-handling";
 
-// get project
+// get stock
 export async function GET(req, { params }) {
   try {
-    // Authenticate and verify user
     const user = await userSession();
-
-    // If the response is a redirect, return it immediately
     if (user instanceof NextResponse) {
       return user;
     }
 
-    const organizationId = user.organizationId;
+    const { stockId } = params;
 
-    const { projectId } = params;
-
-    const project = await db.projects.findUnique({
-      where: {
-        id: projectId,
-      },
+    const stock = await db.stocks.findUnique({
+      where: { id: stockId },
     });
 
-    return NextResponse.json(project);
+    return NextResponse.json(stock);
   } catch (err) {
     console.log(err);
-    return NextResponse.json(err.message);
+    return NextResponse.json({ success: false, message: err.message });
   }
 }
 
-// delete project
+// delete stock
 export async function DELETE(req, { params }) {
   try {
-    // Authenticate and verify user
     const user = await userSession();
-
-    // If the response is a redirect, return it immediately
     if (user instanceof NextResponse) {
       return user;
     }
 
-    const { projectId } = params;
+    const { stockId } = params;
 
-    const deletedProject = await db.projects.delete({
-      where: {
-        id: projectId,
-      },
+    const deletedStock = await db.stocks.delete({
+      where: { id: stockId },
     });
-
     return NextResponse.json({
       success: true,
-      message: "Successfully deleted project",
-      deletedProject,
+      message: "Successfully deleted stock",
+      deletedStock,
     });
   } catch (err) {
     console.error("DELETE Error: ", err);
-
-    // prisma client validation error
     const prismaErr = formatPrismaError(err);
     if (prismaErr) {
       console.log("Prisma Error: ", prismaErr);
@@ -70,49 +55,38 @@ export async function DELETE(req, { params }) {
       );
     }
 
-    // fallback to default error
     return NextResponse.json(
       {
         success: false,
-        message: "An error occurred while deleting project",
+        message: "An error occurred while deleting data",
       },
       { status: 500 }
     );
   }
 }
 
-// update project
+// update stock
 export async function PUT(req, { params }) {
   try {
-    // Authenticate and verify user
     const user = await userSession();
-
-    // If the response is a redirect, return it immediately
     if (user instanceof NextResponse) {
       return user;
     }
 
-    const organizationId = user.organizationId;
-
-    const { projectId } = params;
+    const { stockId } = params;
     const data = await req.json();
 
-    const updateProject = await db.projects.update({
-      where: {
-        id: projectId,
-        organizationId,
-      },
-      data: data,
+    const updatedStock = await db.stocks.update({
+      where: { id: stockId },
+      data,
     });
 
     return NextResponse.json({
       success: true,
-      updateProject,
+      updatedStock,
     });
   } catch (err) {
     console.error("Error updating data: ", err);
-
-    // prisma client validation error
     const prismaErr = formatPrismaError(err);
     if (prismaErr) {
       console.log("Prisma Error: ", prismaErr);
@@ -121,8 +95,6 @@ export async function PUT(req, { params }) {
         { status: prismaErr.status }
       );
     }
-
-    // fallback to default error
     return NextResponse.json(
       {
         success: false,

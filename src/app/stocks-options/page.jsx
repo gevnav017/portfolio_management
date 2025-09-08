@@ -10,8 +10,9 @@ import {
 } from "@/components/CustomButtons";
 import AddStockForm from "./add-stock-form";
 import AddOptionForm from "./add-option-form";
-import DividendForm from "./dividend-form";
-import { UpdateForm, DeleteForm } from "./update-symbol-form";
+import AddDividendForm from "./add-dividend-form";
+import { UpdateStockForm, DeleteStockForm } from "./update-stock-form";
+import { UpdateOptionForm, DeleteOptionForm } from "./update-option-form";
 import NoDataFound from "@/components/NoDataFound";
 import { toMoney } from "@/lib/format";
 import useStocksStore from "@/store/stocksStore";
@@ -43,7 +44,7 @@ import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
 
 const SymbolRows = ({
-  filteredStocks,
+  stock,
   selected,
   setSelected,
   openForm,
@@ -51,10 +52,6 @@ const SymbolRows = ({
   handleOpenForm,
 }) => {
   const [expanded, setExpanded] = useState(false);
-  const stock = filteredStocks[0];
-
-  if (!stock) return null;
-  console.log(stock);
 
   return (
     <Accordion
@@ -80,19 +77,11 @@ const SymbolRows = ({
           </Typography>
           <Stack direction="row" spacing={1} alignItems="center" mr={2}>
             <CustomIconButton
-              icon={<EditOutlinedIcon />}
-              onClick={(e) => {
-                e.stopPropagation();
-                setSelected(stock);
-                handleOpenForm("update", true);
-              }}
-            />
-            <CustomIconButton
               icon={<MonetizationOnOutlinedIcon />}
               onClick={(e) => {
                 e.stopPropagation();
                 setSelected(stock);
-                handleOpenForm("dividend", true);
+                handleOpenForm("dividend");
               }}
             />
             <CustomIconButton
@@ -100,7 +89,7 @@ const SymbolRows = ({
               onClick={(e) => {
                 e.stopPropagation();
                 setSelected(stock);
-                handleOpenForm("delete", true);
+                handleOpenForm("delete");
               }}
             />
           </Stack>
@@ -154,15 +143,17 @@ const SymbolRows = ({
                     <TableCell align="right">
                       {position.type === "Stock" ? (
                         <StockMoreButton
-                          openUpdate={openForm.update}
-                          setOpenUpdate={setOpenForm}
-                          openDelete={openForm.delete}
-                          setOpenDelete={setOpenForm}
+                          openUpdate={openForm.updateStock}
+                          onCloseUpdate={() => handleOpenForm("updateStock")}
+                          openDelete={openForm.deleteStock}
+                          onCloseDelete={() => handleOpenForm("deleteStock")}
                           openNotes={openForm.notes}
-                          setOpenNotes={setOpenForm}
+                          onCloseNotes={() => handleOpenForm("notes")}
                           openCoveredCall={openForm.coveredCall}
-                          setOpenCoveredCall={setOpenForm}
-                          selected={selected}
+                          onCloseCoveredCall={() =>
+                            handleOpenForm("coveredCall")
+                          }
+                          selected={position}
                           setSelected={setSelected}
                         />
                       ) : (
@@ -170,7 +161,7 @@ const SymbolRows = ({
                           onCloseUpdate={() => handleOpenForm("update")}
                           onCloseDelete={() => handleOpenForm("delete")}
                           onCloseNotes={() => handleOpenForm("note")}
-                          selected={selected}
+                          selected={position}
                           setSelected={setSelected}
                         />
                       )}
@@ -249,7 +240,8 @@ export default function StocksOptionsTable() {
     dividend: false,
     note: false,
     coveredCall: false,
-    update: false,
+    updateStock: false,
+    updateOption: false,
     delete: false,
   });
   const [anchorAddMoreMenu, setAnchorAddMoreMenu] = useState(null);
@@ -329,7 +321,7 @@ export default function StocksOptionsTable() {
               onClick={(e) => {
                 e.stopPropagation();
                 setAnchorAddMoreMenu(null);
-                handleOpenForm("addStock", true);
+                handleOpenForm("addStock");
               }}
             >
               Stock
@@ -338,7 +330,7 @@ export default function StocksOptionsTable() {
               onClick={(e) => {
                 e.stopPropagation();
                 setAnchorAddMoreMenu(null);
-                handleOpenForm("addOption", true);
+                handleOpenForm("addOption");
               }}
             >
               Option
@@ -347,12 +339,10 @@ export default function StocksOptionsTable() {
         </Stack>
       </Stack>
       <div>
-        {stocks.map((symbol) => (
+        {filteredStocks.map((stock) => (
           <SymbolRows
-            key={symbol}
-            filteredStocks={filteredStocks.filter(
-              (s) => s.symbol === symbol.symbol
-            )}
+            key={stock.symbol}
+            stock={stock}
             selected={selected}
             setSelected={setSelected}
             openForm={openForm}
@@ -373,20 +363,32 @@ export default function StocksOptionsTable() {
         onClose={() => handleOpenForm("addOption")}
       />
 
-      <DividendForm
+      <AddDividendForm
         open={openForm.dividend}
         onClose={() => handleOpenForm("dividend")}
       />
 
-      <UpdateForm
-        open={openForm.update}
-        onClose={() => handleOpenForm("update")}
+      <UpdateStockForm
+        open={openForm.updateStock}
+        onClose={() => handleOpenForm("updateStock")}
         selected={selected}
       />
 
-      <DeleteForm
-        open={openForm.delete}
-        onClose={() => handleOpenForm("delete")}
+      <UpdateOptionForm
+        open={openForm.updateOption}
+        onClose={() => handleOpenForm("updateOption")}
+        selected={selected}
+      />
+
+      <DeleteStockForm
+        open={openForm.deleteStock}
+        onClose={() => handleOpenForm("deleteStock")}
+        selected={selected}
+      />
+
+      <DeleteOptionForm
+        open={openForm.deleteOption}
+        onClose={() => handleOpenForm("deleteOption")}
         selected={selected}
       />
     </Stack>

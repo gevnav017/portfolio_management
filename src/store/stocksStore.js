@@ -16,17 +16,15 @@ const useStocksStore = create((set) => ({
       set({ errorMsg: `Error: ${error}`, isLoading: false });
     }
   },
- 
+
   addStock: async (data) => {
     try {
       set({ isLoading: true });
       const res = await axiosInstance.post("/api/stocks", data);
       if (res.data.success) {
-        set((state) => ({
-          stocks: [...state.stocks, res.data.addedStock],
-          isLoading: false,
-        }));
         showSnackbar(res.data.message, "success");
+        await useStocksStore.getState().getStocks(); // refetch grouped data
+        set({ isLoading: false });
       } else {
         showSnackbar(res.data.message, "error");
         set({ isLoading: false });
@@ -43,13 +41,9 @@ const useStocksStore = create((set) => ({
       set({ isLoading: true });
       const res = await axiosInstance.put(`/api/stocks/${stockId}`, data);
       if (res.data.success) {
-        set((state) => ({
-          stocks: state.stocks.map((stock) =>
-            stock.id === stockId ? res.data.updatedStock : stock
-          ),
-          isLoading: false,
-        }));
         showSnackbar(res.data.message, "success");
+        await useStocksStore.getState().getStocks(); // refetch grouped data
+        set({ isLoading: false });
       } else {
         showSnackbar(res.data.message, "error");
         set({ isLoading: false });
@@ -69,11 +63,9 @@ const useStocksStore = create((set) => ({
       set({ isLoading: true });
       const res = await axiosInstance.delete(`/api/stocks/${stockId}`);
       if (res.data.success) {
-        set((state) => ({
-          stocks: state.stocks.filter((stock) => stock.id !== stockId),
-          isLoading: false,
-        }));
         showSnackbar(res.data.message, "success");
+        await useStocksStore.getState().getStocks(); // refetch grouped data
+        set({ isLoading: false });
       } else {
         showSnackbar(res.data.message, "error");
         set({ isLoading: false });

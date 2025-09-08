@@ -17,7 +17,7 @@ import {
   Typography,
 } from "@mui/material";
 
-export default function DividendForm({ open, onClose }) {
+export default function AddDividendForm({ open, onClose }) {
   const { addOption, isLoading } = useOptionsStore();
   const {
     register,

@@ -20,7 +20,7 @@ import {
   Typography,
 } from "@mui/material";
 
-export function UpdateForm({ open, onClose, selected }) {
+export function UpdateDividendForm({ open, onClose, selected }) {
   const { updateSelected, isLoading } = useStocksStore();
   const {
     register,
@@ -209,7 +209,7 @@ export function UpdateForm({ open, onClose, selected }) {
   );
 }
 
-export const DeleteForm = ({ open, onClose, selected }) => {
+export const DeleteStockForm = ({ open, onClose, selected }) => {
   const handleDelete = async () => {
     try {
       await deleteSelected(selected.id);
