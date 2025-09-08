@@ -104,7 +104,7 @@ const Nav = () => {
             <img
               style={{ borderRadius: 4 }}
               src="/portfolio-management-logo.png"
-              alt="logo"
+              alt="Logo"
               width="50"
               height="50"
             />

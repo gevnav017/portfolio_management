@@ -14,7 +14,8 @@ export default withAuth({
   },
 });
 
-// Protect everything except Next internals + login + NextAuth
+// Protect everything except Next internals + login + NextAuth and file with extensions
 export const config = {
-  matcher: ["/((?!_next|favicon.ico|login|api/auth).*)"],
+  // protect everything EXCEPT Next internals, NextAuth endpoints, and any file with an extension
+  matcher: ["/((?!api/auth|_next|favicon.ico|.*\\..*).*)"],
 };

@@ -1,8 +1,12 @@
 "use client";
 
+// route imports
 import { useState, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 import { signIn } from "next-auth/react";
+
+// MUI imports
+import Image from "next/image";
 import {
   Button,
   Stack,
@@ -62,7 +66,7 @@ export default function SignIn() {
           <Box
             component="img"
             src="/portfolio-management-logo.png"
-            alt="Portfolio Management Logo"
+            alt="Logo"
             sx={{ borderRadius: 2, width: 96, height: 96 }}
           />
 

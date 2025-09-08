@@ -43,8 +43,7 @@ import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
 
 const SymbolRows = ({
-  symbol,
-  filteredPositions,
+  filteredStocks,
   selected,
   setSelected,
   openForm,
@@ -52,17 +51,20 @@ const SymbolRows = ({
   handleOpenForm,
 }) => {
   const [expanded, setExpanded] = useState(false);
+  const stock = filteredStocks[0];
+
+  if (!stock) return null;
+  console.log(stock);
 
   return (
     <Accordion
-      key={symbol.id}
       expanded={expanded}
       onChange={() => setExpanded(!expanded)}
       sx={{ border: "solid 1px silver" }}
       elevation={0}
     >
       <AccordionSummary
-        id={`panel-header-${symbol.id}`}
+        id={`panel-header-${stock.symbol}`}
         component="div"
         expandIcon={<ExpandMoreIcon />}
       >
@@ -72,16 +74,16 @@ const SymbolRows = ({
           alignItems="center"
           sx={{ width: "100%" }}
         >
-          <Typography>{symbol.symbol}</Typography>
+          <Typography>{stock.symbol}</Typography>
           <Typography>
-            P/L: ${symbol.PL} - {symbol.Change}
+            P/L: ${stock.PL} - {stock.Change}
           </Typography>
           <Stack direction="row" spacing={1} alignItems="center" mr={2}>
             <CustomIconButton
               icon={<EditOutlinedIcon />}
               onClick={(e) => {
                 e.stopPropagation();
-                setSelected(symbol);
+                setSelected(stock);
                 handleOpenForm("update", true);
               }}
             />
@@ -89,7 +91,7 @@ const SymbolRows = ({
               icon={<MonetizationOnOutlinedIcon />}
               onClick={(e) => {
                 e.stopPropagation();
-                setSelected(symbol);
+                setSelected(stock);
                 handleOpenForm("dividend", true);
               }}
             />
@@ -97,7 +99,7 @@ const SymbolRows = ({
               icon={<DeleteOutlinedIcon />}
               onClick={(e) => {
                 e.stopPropagation();
-                setSelected(symbol);
+                setSelected(stock);
                 handleOpenForm("delete", true);
               }}
             />
@@ -130,8 +132,8 @@ const SymbolRows = ({
               </TableRow>
             </TableHead>
             <TableBody>
-              {filteredPositions.length > 0 ? (
-                filteredPositions.map((position) => (
+              {stock.positions?.length > 0 ? (
+                stock.positions?.map((position) => (
                   <TableRow key={position.id}>
                     <TableCell>{position.quantity ?? "-"}</TableCell>
                     <TableCell>{position.dte ?? "-"}</TableCell>
@@ -178,7 +180,7 @@ const SymbolRows = ({
               ) : (
                 <TableRow>
                   <TableCell colSpan={100} align="center">
-                    <NoDataFound label="No options found. Click 'New Entry' to add one." />
+                    <NoDataFound label="No stock data found. Click 'New Entry' to add one." />
                   </TableCell>
                 </TableRow>
               )}
@@ -188,20 +190,46 @@ const SymbolRows = ({
                 <TableCell colSpan={100}>
                   {/* stock data */}
                   <Stack direction="row" justifyContent="space-between">
-                    <Grid container direction="column" spacing={2} flex={1}>
-                      <Grid size={4}>Original Cost Basis: $200</Grid>
-                      <Grid size={4}>Open Stock Qty: $100</Grid>
-                      <Grid size={4}>Dividends Collected: $200</Grid>
-                      <Grid size={4}>Stock P/L: $200</Grid>
-                      <Grid size={4}>Adjusted Cost Basis: $200</Grid>
-                      <Grid size={4}>Current Stock Price: $100</Grid>
-                    </Grid>
-                    {/* options data */}
-                    <Grid container direction="column" spacing={2} flex={1}>
-                      <Grid size={4}>Net Premium: $100</Grid>
-                      <Grid size={4}>Open Option P/L: $100</Grid>
-                      <Grid size={4}>Open Option Qty: $200</Grid>
-                      <Grid size={4}>Closed Option P/L: $100</Grid>
+                    {/* stock data */}
+                    <Grid container spacing={2} flex={1}>
+                      <Grid size={{ xs: 6, md: 3 }}>
+                        Original Cost Basis:{" "}
+                        {toMoney(stock.metrics?.originalCostBasis)}
+                      </Grid>
+                      <Grid size={{ xs: 6, md: 3 }}>
+                        Open Stock Qty: {stock.metrics?.openQty}
+                      </Grid>
+                      <Grid size={{ xs: 6, md: 3 }}>
+                        Dividends Collected:{" "}
+                        {toMoney(stock.metrics?.dividendsCollected)}
+                      </Grid>
+                      <Grid size={{ xs: 6, md: 3 }}>
+                        Stock P/L (Unrealized):{" "}
+                        {toMoney(stock.metrics?.stockPL)}
+                      </Grid>
+                      {/* <Grid>Stock P/L (Realized): {toMoney(s.realizedStockPL)}</Grid> */}
+                      <Grid size={{ xs: 6, md: 3 }}>
+                        Adjusted Cost Basis:{" "}
+                        {toMoney(stock.metrics?.adjustedCostBasis)}
+                      </Grid>
+                      <Grid size={{ xs: 6, md: 3 }}>
+                        Current Stock Price:{" "}
+                        {toMoney(stock.metrics?.currentPrice)}
+                      </Grid>
+                      {/* options data */}
+                      <Grid size={{ xs: 6, md: 3 }}>
+                        Net Premium: {toMoney(stock.options?.netPremium)}
+                      </Grid>
+                      <Grid size={{ xs: 6, md: 3 }}>
+                        Open Option P/L: {toMoney(stock.options?.openOptionPL)}
+                      </Grid>
+                      <Grid size={{ xs: 6, md: 3 }}>
+                        Open Option Qty: {stock.options?.openOptionQty}
+                      </Grid>
+                      <Grid size={{ xs: 6, md: 3 }}>
+                        Closed Option P/L:{" "}
+                        {toMoney(stock.options?.closedOptionPL)}
+                      </Grid>
                     </Grid>
                   </Stack>
                 </TableCell>
@@ -235,15 +263,7 @@ export default function StocksOptionsTable() {
     getStocks();
   }, [getStocks]);
 
-  // get unique symbols from stocks
-  const uniqueSymbols = Object.values(
-    stocks.reduce((acc, stock) => {
-      acc[stock.symbol] = acc[stock.symbol] || stock; // keep first occurrence
-      return acc;
-    }, {})
-  ).sort((a, b) => a.symbol.localeCompare(b.symbol));
-
-  const filteredPositions =
+  const filteredStocks =
     filter === "all"
       ? stocks
       : stocks.filter((p) => {
@@ -327,11 +347,10 @@ export default function StocksOptionsTable() {
         </Stack>
       </Stack>
       <div>
-        {uniqueSymbols.map((symbol) => (
+        {stocks.map((symbol) => (
           <SymbolRows
-            key={symbol.id}
-            symbol={symbol}
-            filteredPositions={filteredPositions.filter(
+            key={symbol}
+            filteredStocks={filteredStocks.filter(
               (s) => s.symbol === symbol.symbol
             )}
             selected={selected}
