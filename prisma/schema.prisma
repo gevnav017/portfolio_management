@@ -13,12 +13,14 @@ model User {
   email    String @unique
   password String
 
-  createdAt       DateTime          @default(now())
-  updatedAt       DateTime          @updatedAt
-  LiquidPositions LiquidPositions[]
-  Stocks          Stocks[]
-  Options         Options[]
-  Cryptos         Cryptos[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // relations
+  liquidPositions LiquidPositions[]
+  stocks          Stocks[]
+  options         Options[]
+  cryptos         Cryptos[]
 }
 
 model LiquidPositions {
@@ -28,6 +30,7 @@ model LiquidPositions {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  // relations
   editUser   User   @relation(fields: [editUserId], references: [id])
   editUserId String
 }
@@ -43,50 +46,88 @@ model Stocks {
   debit         Float?
   credit        Float?
   tradeDate     DateTime
-  status        Boolean  @default(true)
+  status        String   @default("open")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  // relations
   editUser   User   @relation(fields: [editUserId], references: [id])
   editUserId String
+}
+
+enum OptionFamily {
+  call
+  put
+}
+
+enum LegSide {
+  short
+  long
+}
+
+enum TradeStatus {
+  open
+  closed
 }
 
 model Options {
-  id             String   @id @default(cuid())
+  id             String       @id @default(cuid())
   symbol         String
-  quantity       Int
+  strategy       String // "Single" | "Credit Call Spread" | ...
+  family         OptionFamily // call | put (the underlying family)
+  quantity       Int // contracts per leg (common lot size)
   tradeDate      DateTime
   expirationDate DateTime
-  strike         Float
-  type           String   @default("Option")
-  side           String
-  credit         Float?
-  debit          Float?
-  status         Boolean  @default(true)
+  status         TradeStatus  @default(open)
+
+  legs OptionLegs[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  editUser   User   @relation(fields: [editUserId], references: [id])
+  // relations
   editUserId String
+  editUser   User   @relation(fields: [editUserId], references: [id])
+}
+
+model OptionLegs {
+  id     String       @id @default(cuid())
+  side   LegSide // short | long | single
+  family OptionFamily // call | put
+  strike Decimal      @db.Decimal(10, 2)
+  price  Decimal      @db.Decimal(10, 2) // per-contract premium
+  credit Decimal?     @db.Decimal(10, 2) // usually side=short => credit=price
+  debit  Decimal?     @db.Decimal(10, 2) // usually side=long  => debit=price
+  status TradeStatus  @default(open)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // relations
+  tradeId String
+  trade   Options @relation(fields: [tradeId], references: [id], onDelete: Cascade)
+
+  @@index([tradeId])
+  @@index([family, strike])
 }
 
 model Cryptos {
-  id            String   @id @default(cuid())
+  id            String      @id @default(cuid())
   symbol        String
   purchasePrice Float
   quantity      Int
-  type          String   @default("Crypto")
+  type          String      @default("Crypto")
   sellPrice     Float?
   debit         Float?
   credit        Float?
   tradeDate     DateTime
-  status        Boolean  @default(true)
+  status        TradeStatus @default(open)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  // relations
   editUser   User   @relation(fields: [editUserId], references: [id])
   editUserId String
 }
