@@ -1,19 +1,16 @@
 "use server";
 
 import { NextResponse } from "next/server";
-import { userSession } from "@/components/user-server-session";
 import db from "@/lib/prisma";
 import { formatPrismaError } from "@/lib/api-error-handling";
+import apiUserAuth from "@/lib/api-user-auth";
 
 // get stock
 export async function GET(req, { params }) {
   try {
-    const user = await userSession();
-    if (user instanceof NextResponse) {
-      return user;
-    }
+    await apiUserAuth();
 
-    const { stockId } = params;
+    const { stockId } = await params;
 
     const stock = await db.stocks.findUnique({
       where: { id: stockId },
@@ -29,12 +26,9 @@ export async function GET(req, { params }) {
 // delete stock
 export async function DELETE(req, { params }) {
   try {
-    const user = await userSession();
-    if (user instanceof NextResponse) {
-      return user;
-    }
+    await apiUserAuth();
 
-    const { stockId } = params;
+    const { stockId } = await params;
 
     const deletedStock = await db.stocks.delete({
       where: { id: stockId },
@@ -68,21 +62,22 @@ export async function DELETE(req, { params }) {
 // update stock
 export async function PUT(req, { params }) {
   try {
-    const user = await userSession();
-    if (user instanceof NextResponse) {
-      return user;
-    }
+    const user = await apiUserAuth();
 
-    const { stockId } = params;
+    const { stockId } = await params;
     const data = await req.json();
 
     const updatedStock = await db.stocks.update({
       where: { id: stockId },
-      data,
+      data: {
+        ...data,
+        editUserId: user.id,
+      },
     });
 
     return NextResponse.json({
       success: true,
+      message: "Successfully updated stock",
       updatedStock,
     });
   } catch (err) {

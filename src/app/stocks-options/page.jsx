@@ -13,6 +13,8 @@ import AddOptionForm from "./add-option-form";
 import AddDividendForm from "./add-dividend-form";
 import { UpdateStockForm, DeleteStockForm } from "./update-stock-form";
 import { UpdateOptionForm, DeleteOptionForm } from "./update-option-form";
+import CloseStockForm from "./close-stock";
+import AddCoveredCallForm from "./add-covered-call";
 import NoDataFound from "@/components/NoDataFound";
 import { toMoney } from "@/lib/format";
 import useStocksStore from "@/store/stocksStore";
@@ -40,17 +42,9 @@ import {
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import AddCircleOutlineOutlinedIcon from "@mui/icons-material/AddCircleOutlineOutlined";
 import MonetizationOnOutlinedIcon from "@mui/icons-material/MonetizationOnOutlined";
-import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
 
-const SymbolRows = ({
-  stock,
-  selected,
-  setSelected,
-  openForm,
-  setOpenForm,
-  handleOpenForm,
-}) => {
+const SymbolRows = ({ stock, setSelected, handleOpenForm }) => {
   const [expanded, setExpanded] = useState(false);
 
   return (
@@ -81,7 +75,7 @@ const SymbolRows = ({
               onClick={(e) => {
                 e.stopPropagation();
                 setSelected(stock);
-                handleOpenForm("dividend");
+                handleOpenForm("addDividend");
               }}
             />
             <CustomIconButton
@@ -112,6 +106,7 @@ const SymbolRows = ({
                 <TableCell>Qty</TableCell>
                 <TableCell>DTE</TableCell>
                 <TableCell>Price</TableCell>
+                <TableCell>Strategy</TableCell>
                 <TableCell>Strike</TableCell>
                 <TableCell>Side</TableCell>
                 <TableCell>Type</TableCell>
@@ -131,6 +126,7 @@ const SymbolRows = ({
                         ? toMoney(position.purchasePrice)
                         : "-"}
                     </TableCell>
+                    <TableCell>{position.strategy ?? "-"}</TableCell>
                     <TableCell>{position.strike ?? "-"}</TableCell>
                     <TableCell>{position.side ?? "-"}</TableCell>
                     <TableCell>{position.type ?? "-"}</TableCell>
@@ -143,15 +139,12 @@ const SymbolRows = ({
                     <TableCell align="right">
                       {position.type === "Stock" ? (
                         <StockMoreButton
-                          openUpdate={openForm.updateStock}
                           onCloseUpdate={() => handleOpenForm("updateStock")}
-                          openDelete={openForm.deleteStock}
                           onCloseDelete={() => handleOpenForm("deleteStock")}
-                          openNotes={openForm.notes}
+                          onCloseCloseStock={() => handleOpenForm("closeStock")}
                           onCloseNotes={() => handleOpenForm("notes")}
-                          openCoveredCall={openForm.coveredCall}
                           onCloseCoveredCall={() =>
-                            handleOpenForm("coveredCall")
+                            handleOpenForm("addCoveredCall")
                           }
                           selected={position}
                           setSelected={setSelected}
@@ -237,9 +230,10 @@ export default function StocksOptionsTable() {
   const [openForm, setOpenForm] = useState({
     addStock: false,
     addOption: false,
-    dividend: false,
+    addCoveredCall: false,
+    addDividend: false,
+    closeStock: false,
     note: false,
-    coveredCall: false,
     updateStock: false,
     updateOption: false,
     delete: false,
@@ -248,7 +242,7 @@ export default function StocksOptionsTable() {
   const openAddMoreMenu = Boolean(anchorAddMoreMenu);
   const [selected, setSelected] = useState(null);
   const [filter, setFilter] = useState("all");
-
+console.log(openForm)
   const { stocks, getStocks } = useStocksStore();
 
   useEffect(() => {
@@ -345,7 +339,6 @@ export default function StocksOptionsTable() {
             stock={stock}
             selected={selected}
             setSelected={setSelected}
-            openForm={openForm}
             setOpenForm={setOpenForm}
             handleOpenForm={handleOpenForm}
           />
@@ -364,8 +357,21 @@ export default function StocksOptionsTable() {
       />
 
       <AddDividendForm
-        open={openForm.dividend}
-        onClose={() => handleOpenForm("dividend")}
+        open={openForm.addDividend}
+        onClose={() => handleOpenForm("addDividend")}
+        selected={selected}
+      />
+
+      <CloseStockForm
+        open={openForm.closeStock}
+        onClose={() => handleOpenForm("closeStock")}
+        selected={selected}
+      />
+
+      <AddCoveredCallForm
+        open={openForm.addCoveredCall}
+        onClose={() => handleOpenForm("addCoveredCall")}
+        selected={selected}
       />
 
       <UpdateStockForm

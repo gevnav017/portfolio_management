@@ -20,6 +20,8 @@ import {
   InputAdornment,
   MenuItem,
 } from "@mui/material";
+import { capAllLetters } from "@/lib/cap-letters";
+import { showSnackbar } from "@/lib/show-snackbar";
 
 export function UpdateStockForm({ open, onClose, selected }) {
   const { updateStock, isLoading } = useStocksStore();
@@ -39,19 +41,24 @@ export function UpdateStockForm({ open, onClose, selected }) {
       setValue("qty", selected.quantity || "");
       setValue("tradeDate", selected.tradeDate || "");
       setValue("purchasePrice", selected.purchasePrice || "");
-      setValue("side", selected.side || "");
-      setValue("credit", selected.credit || "");
-      setValue("debit", selected.debit || "");
     }
   }, [selected, setValue]);
 
   const handleUpdate = async (formData) => {
     try {
-      await updateStock({ ...selected, ...formData });
+      const data = {
+        symbol: capAllLetters(formData.symbol),
+        quantity: parseInt(formData.qty, 10),
+        tradeDate: new Date(formData.tradeDate),
+        purchasePrice: parseFloat(formData.purchasePrice),
+      };
+
+      await updateStock(selected.id, data);
       onClose();
       reset();
     } catch (err) {
-      // selectedally show a snackbar or error message
+      console.error("Update Error: ", err);
+      showSnackbar("Error updating stock", "error");
     }
   };
 
@@ -105,34 +112,17 @@ export function UpdateStockForm({ open, onClose, selected }) {
                 <TextField
                   {...field}
                   label="Purchase Price"
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">$</InputAdornment>
-                    ),
+                  slotProps={{
+                    input: {
+                      startAdornment: (
+                        <InputAdornment position="start">$</InputAdornment>
+                      ),
+                    },
                   }}
                   fullWidth
                   error={!!errors.purchasePrice}
                   helperText={errors.purchasePrice?.message}
                 />
-              )}
-            />
-            <Controller
-              name="side"
-              control={control}
-              defaultValue=""
-              rules={{ required: "This field is required" }}
-              render={({ field }) => (
-                <TextField
-                  {...field}
-                  select
-                  label="Side"
-                  fullWidth
-                  error={!!errors.side}
-                  helperText={errors.side?.message}
-                >
-                  <MenuItem value="Buy">Buy</MenuItem>
-                  <MenuItem value="Sell">Sell</MenuItem>
-                </TextField>
               )}
             />
             <Controller
@@ -149,7 +139,7 @@ export function UpdateStockForm({ open, onClose, selected }) {
                   label="Trade Date"
                   type="date"
                   fullWidth
-                  InputLabelProps={{ shrink: true }}
+                  slotProps={{ inputLabel: { shrink: true } }}
                   value={
                     field.value
                       ? new Date(field.value).toISOString().slice(0, 10)
@@ -184,12 +174,15 @@ export function UpdateStockForm({ open, onClose, selected }) {
 }
 
 export const DeleteStockForm = ({ open, onClose, selected }) => {
+  const { deleteStock, isLoading } = useStocksStore();
+
   const handleDelete = async () => {
     try {
-      await deleteSelected(selected.id);
+      await deleteStock(selected.id);
       onClose();
     } catch (error) {
-      showSnackbar(`error: ${error.message}`, "error");
+      console.error("Error deleting stock: ", error);
+      showSnackbar("Error deleting stock", "error");
     }
   };
 
@@ -205,7 +198,7 @@ export const DeleteStockForm = ({ open, onClose, selected }) => {
       <DialogTitle>Confirm Delete</DialogTitle>
       <DialogContent>
         <DialogContentText id="alert-dialog-description">
-          {`Are you sure you want to delete ${selected?.symbol}?`}
+          {`Are you sure you want to delete ${selected?.symbol} with ${selected?.quantity} shares?`}
         </DialogContentText>
       </DialogContent>
       <DialogActions>
@@ -219,11 +212,12 @@ export const DeleteStockForm = ({ open, onClose, selected }) => {
         <Button
           variant="contained"
           color="danger"
+          disabled={isLoading}
           onClick={() => {
             handleDelete();
           }}
         >
-          Delete
+          {isLoading ? <CircularProgress size={22} /> : "Delete"}
         </Button>
       </DialogActions>
     </Dialog>

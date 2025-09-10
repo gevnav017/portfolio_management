@@ -3,24 +3,17 @@
 import { NextResponse } from "next/server";
 import db from "@/lib/prisma";
 import { formatPrismaError } from "../../../lib/api-error-handling";
-import { authOptions } from "../auth/[...nextauth]/route";
-import { getServerSession } from "next-auth";
+import apiUserAuth from "@/lib/api-user-auth";
 import { summarize } from "@/lib/summarize";
 
 // get stocks
 export async function GET(req) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.id) {
-      return NextResponse.json(
-        { success: false, message: "Not authenticated" },
-        { status: 401 }
-      );
-    }
-
+    const user = await apiUserAuth();
+    
     // Pull all positions for the user (stocks, options, dividends)
     const positions = await db.stocks.findMany({
-      where: { editUserId: session.user.id },
+      where: { editUserId: user.id },
       orderBy: [{ symbol: "asc" }, { tradeDate: "asc" }],
     });
 
@@ -69,16 +62,7 @@ export async function GET(req) {
 // post new stock
 export async function POST(req) {
   try {
-    // get session
-    const { user } = await getServerSession(authOptions);
-
-    // if not logged in, return 401
-    if (!user) {
-      return NextResponse.json(
-        { success: false, message: "Not authenticated" },
-        { status: 401 }
-      );
-    }
+    const user = await apiUserAuth();
 
     const data = await req.json();
 

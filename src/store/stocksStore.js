@@ -13,7 +13,8 @@ const useStocksStore = create((set) => ({
       set({ stocks: res.data.stocks, isLoading: false });
     } catch (error) {
       console.log(error);
-      set({ errorMsg: `Error: ${error}`, isLoading: false });
+      showSnackbar("Failed to fetch stocks", "error");
+      set({ isLoading: false });
     }
   },
 
@@ -31,7 +32,7 @@ const useStocksStore = create((set) => ({
       }
     } catch (error) {
       console.error("Add Error: ", error);
-      showSnackbar(error.response?.data?.message || "Failed to add", "error");
+      showSnackbar("Failed to add", "error");
       set({ isLoading: false });
     }
   },
@@ -50,10 +51,7 @@ const useStocksStore = create((set) => ({
       }
     } catch (error) {
       console.error("Update Error: ", error);
-      showSnackbar(
-        error.response?.data?.message || "Failed to update",
-        "error"
-      );
+      showSnackbar("Failed to update", "error");
       set({ isLoading: false });
     }
   },
@@ -72,10 +70,7 @@ const useStocksStore = create((set) => ({
       }
     } catch (error) {
       console.error("Delete Error: ", error);
-      showSnackbar(
-        error.response?.data?.message || "Failed to delete",
-        "error"
-      );
+      showSnackbar("Failed to delete", "error");
       set({ isLoading: false });
     }
   },

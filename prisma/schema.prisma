@@ -39,12 +39,9 @@ model Stocks {
   id            String   @id @default(cuid())
   symbol        String
   quantity      Int
-  side          String
   type          String   @default("Stock")
   purchasePrice Float
   sellPrice     Float?
-  debit         Float?
-  credit        Float?
   tradeDate     DateTime
   status        String   @default("open")
 

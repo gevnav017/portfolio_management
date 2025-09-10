@@ -88,6 +88,7 @@ export const UpdateDeleteIconButton = ({
 export const StockMoreButton = ({
   onCloseUpdate,
   onCloseDelete,
+  onCloseCloseStock,
   onCloseNotes,
   onCloseCoveredCall,
   selected,
@@ -118,14 +119,6 @@ export const StockMoreButton = ({
           onClick={(e) => {
             e.stopPropagation();
             setAnchorMoreDropDown(null);
-          }}
-        >
-          Mark as Closed
-        </MenuItem>
-        <MenuItem
-          onClick={(e) => {
-            e.stopPropagation();
-            setAnchorMoreDropDown(null);
             onCloseNotes();
           }}
         >
@@ -135,7 +128,7 @@ export const StockMoreButton = ({
           onClick={(e) => {
             e.stopPropagation();
             setAnchorMoreDropDown(null);
-            onCloseUpdate();
+            onCloseCloseStock();
           }}
         >
           Close Position
@@ -148,14 +141,6 @@ export const StockMoreButton = ({
           }}
         >
           Open Covered Call
-        </MenuItem>
-        <MenuItem
-          onClick={(e) => {
-            e.stopPropagation();
-            setAnchorMoreDropDown(null);
-          }}
-        >
-          Shares Called Away
         </MenuItem>
         <MenuItem
           onClick={(e) => {

@@ -341,10 +341,12 @@ export default function AddOptionForm({ open, onClose, symbol }) {
                       label="Strike"
                       type="number"
                       fullWidth
-                      InputProps={{
-                        startAdornment: (
-                          <InputAdornment position="start">$</InputAdornment>
-                        ),
+                      slotProps={{
+                        input: {
+                          startAdornment: (
+                            <InputAdornment position="start">$</InputAdornment>
+                          ),
+                        },
                       }}
                     />
                   )}
@@ -358,10 +360,12 @@ export default function AddOptionForm({ open, onClose, symbol }) {
                       label="Price"
                       type="number"
                       fullWidth
-                      InputProps={{
-                        startAdornment: (
-                          <InputAdornment position="start">$</InputAdornment>
-                        ),
+                      slotProps={{
+                        input: {
+                          startAdornment: (
+                            <InputAdornment position="start">$</InputAdornment>
+                          ),
+                        },
                       }}
                     />
                   )}
@@ -381,12 +385,14 @@ export default function AddOptionForm({ open, onClose, symbol }) {
                           label="Strike"
                           type="number"
                           fullWidth
-                          InputProps={{
-                            startAdornment: (
-                              <InputAdornment position="start">
-                                $
-                              </InputAdornment>
-                            ),
+                          slotProps={{
+                            input: {
+                              startAdornment: (
+                                <InputAdornment position="start">
+                                  $
+                                </InputAdornment>
+                              ),
+                            },
                           }}
                         />
                       )}
@@ -402,12 +408,14 @@ export default function AddOptionForm({ open, onClose, symbol }) {
                           label="Price (credit)"
                           type="number"
                           fullWidth
-                          InputProps={{
-                            startAdornment: (
-                              <InputAdornment position="start">
-                                $
-                              </InputAdornment>
-                            ),
+                          slotProps={{
+                            input: {
+                              startAdornment: (
+                                <InputAdornment position="start">
+                                  $
+                                </InputAdornment>
+                              ),
+                            },
                           }}
                         />
                       )}
@@ -427,12 +435,14 @@ export default function AddOptionForm({ open, onClose, symbol }) {
                           label="Strike"
                           type="number"
                           fullWidth
-                          InputProps={{
-                            startAdornment: (
-                              <InputAdornment position="start">
-                                $
-                              </InputAdornment>
-                            ),
+                          slotProps={{
+                            input: {
+                              startAdornment: (
+                                <InputAdornment position="start">
+                                  $
+                                </InputAdornment>
+                              ),
+                            },
                           }}
                         />
                       )}
@@ -448,12 +458,14 @@ export default function AddOptionForm({ open, onClose, symbol }) {
                           label="Price (debit)"
                           type="number"
                           fullWidth
-                          InputProps={{
-                            startAdornment: (
-                              <InputAdornment position="start">
-                                $
-                              </InputAdornment>
-                            ),
+                          slotProps={{
+                            input: {
+                              startAdornment: (
+                                <InputAdornment position="start">
+                                  $
+                                </InputAdornment>
+                              ),
+                            },
                           }}
                         />
                       )}

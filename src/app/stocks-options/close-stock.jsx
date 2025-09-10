@@ -20,8 +20,8 @@ import {
 } from "@mui/material";
 import { showSnackbar } from "@/lib/show-snackbar";
 
-export default function AddStockForm({ open, onClose }) {
-  const { addStock, isLoading } = useStocksStore();
+export default function CloseStockForm({ open, onClose, selected }) {
+  const { closeStock, isLoading } = useStocksStore();
 
   const {
     register,
@@ -31,21 +31,19 @@ export default function AddStockForm({ open, onClose }) {
     control,
   } = useForm();
 
-  const handleAddStock = async (formData) => {
+  const handleCloseStock = async (formData) => {
     try {
       const data = {
-        symbol: capAllLetters(formData.symbol),
-        quantity: parseInt(formData.qty, 10),
-        purchasePrice: parseFloat(formData.purchasePrice),
-        tradeDate: new Date(formData.tradeDate),
+        purchasePrice: parseFloat(formData.sellPrice),
+        tradeDate: new Date(formData.sellDate),
       };
 
-      await addStock(data);
+      await closeStock(selected.id, data);
       onClose();
       reset();
     } catch (err) {
-      console.error("Add Error: ", err);
-      showSnackbar("Error adding stock", "error");
+      console.error("Close Error: ", err);
+      showSnackbar("Error closing stock", "error");
     }
   };
 
@@ -56,49 +54,19 @@ export default function AddStockForm({ open, onClose }) {
 
   return (
     <Drawer anchor="right" open={open} onClose={handleDrawerClose}>
-      <form onSubmit={handleSubmit(handleAddStock)}>
-        <DialogTitle>Add Stock</DialogTitle>
+      <form onSubmit={handleSubmit(handleCloseStock)}>
+        <DialogTitle>Close Stock</DialogTitle>
         <DialogContent>
           <Stack spacing={2} sx={{ mt: 1 }}>
             <Controller
-              name="symbol"
+              name="sellPrice"
               control={control}
               defaultValue=""
               rules={{ required: "This field is required" }}
               render={({ field }) => (
                 <TextField
                   {...field}
-                  label="Symbol"
-                  fullWidth
-                  error={!!errors.symbol}
-                  helperText={errors.symbol?.message}
-                />
-              )}
-            />
-            <Controller
-              name="qty"
-              control={control}
-              defaultValue=""
-              rules={{ required: "This field is required" }}
-              render={({ field }) => (
-                <TextField
-                  {...field}
-                  label="Qty"
-                  fullWidth
-                  error={!!errors.qty}
-                  helperText={errors.qty?.message}
-                />
-              )}
-            />
-            <Controller
-              name="purchasePrice"
-              control={control}
-              defaultValue=""
-              rules={{ required: "This field is required" }}
-              render={({ field }) => (
-                <TextField
-                  {...field}
-                  label="Purchase Price"
+                  label="Sell Price"
                   slotProps={{
                     input: {
                       startAdornment: (
@@ -107,24 +75,24 @@ export default function AddStockForm({ open, onClose }) {
                     },
                   }}
                   fullWidth
-                  error={!!errors.purchasePrice}
-                  helperText={errors.purchasePrice?.message}
+                  error={!!errors.sellPrice}
+                  helperText={errors.sellPrice?.message}
                 />
               )}
             />
             <Controller
-              name="tradeDate"
+              name="sellDate"
               control={control}
               defaultValue=""
               rules={{ required: "This field is required" }}
               render={({ field }) => (
                 <TextField
                   {...field}
-                  label="Trade Date"
+                  label="Sell Date"
                   fullWidth
                   type="date"
-                  error={!!errors.tradeDate}
-                  helperText={errors.tradeDate?.message}
+                  error={!!errors.sellDate}
+                  helperText={errors.sellDate?.message}
                   slotProps={{ inputLabel: { shrink: true } }}
                 />
               )}
@@ -145,7 +113,7 @@ export default function AddStockForm({ open, onClose }) {
             color="primary"
             disabled={isLoading}
           >
-            {isLoading ? <CircularProgress size={22} /> : "Add"}
+            {isLoading ? <CircularProgress size={22} /> : "Close"}
           </Button>
         </DialogActions>
       </form>
