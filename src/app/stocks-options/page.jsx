@@ -18,6 +18,7 @@ import AddCoveredCallForm from "./add-covered-call";
 import NoDataFound from "@/components/NoDataFound";
 import { toMoney } from "@/lib/format";
 import useStocksStore from "@/store/stocksStore";
+import useOptionsStore from "@/store/optionsStore";
 
 // MUI imports
 import {
@@ -44,9 +45,9 @@ import AddCircleOutlineOutlinedIcon from "@mui/icons-material/AddCircleOutlineOu
 import MonetizationOnOutlinedIcon from "@mui/icons-material/MonetizationOnOutlined";
 import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
 
-const SymbolRows = ({ stock, setSelected, handleOpenForm }) => {
+const SymbolRows = ({ entry, setSelected, handleOpenForm }) => {
   const [expanded, setExpanded] = useState(false);
-
+  console.log(entry);
   return (
     <Accordion
       expanded={expanded}
@@ -55,7 +56,7 @@ const SymbolRows = ({ stock, setSelected, handleOpenForm }) => {
       elevation={0}
     >
       <AccordionSummary
-        id={`panel-header-${stock.symbol}`}
+        id={`panel-header-${entry.symbol}`}
         component="div"
         expandIcon={<ExpandMoreIcon />}
       >
@@ -65,16 +66,14 @@ const SymbolRows = ({ stock, setSelected, handleOpenForm }) => {
           alignItems="center"
           sx={{ width: "100%" }}
         >
-          <Typography>{stock.symbol}</Typography>
-          <Typography>
-            P/L: ${stock.PL} - {stock.Change}
-          </Typography>
+          <Typography>{entry.symbol}</Typography>
+          <Typography>{/* P/L: ${entry.PL} - {entry.Change} */}</Typography>
           <Stack direction="row" spacing={1} alignItems="center" mr={2}>
             <CustomIconButton
               icon={<MonetizationOnOutlinedIcon />}
               onClick={(e) => {
                 e.stopPropagation();
-                setSelected(stock);
+                setSelected(entry);
                 handleOpenForm("addDividend");
               }}
             />
@@ -82,7 +81,7 @@ const SymbolRows = ({ stock, setSelected, handleOpenForm }) => {
               icon={<DeleteOutlinedIcon />}
               onClick={(e) => {
                 e.stopPropagation();
-                setSelected(stock);
+                setSelected(entry);
                 handleOpenForm("delete");
               }}
             />
@@ -116,8 +115,23 @@ const SymbolRows = ({ stock, setSelected, handleOpenForm }) => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {stock.positions?.length > 0 ? (
-                stock.positions?.map((position) => (
+              {/* stocks header */}
+              <TableRow>
+                <TableCell
+                  colSpan={100}
+                  sx={{ fontWeight: "bold", bgcolor: "background.paper" }}
+                >
+                  Stocks
+                </TableCell>
+              </TableRow>
+              {entry.stocks?.positions?.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={100} align="center">
+                    <NoDataFound label="No stock data found. Click 'New Entry' to add one." />
+                  </TableCell>
+                </TableRow>
+              ) : (
+                entry.stocks.positions?.map((position) => (
                   <TableRow key={position.id}>
                     <TableCell>{position.quantity ?? "-"}</TableCell>
                     <TableCell>{position.dte ?? "-"}</TableCell>
@@ -161,12 +175,68 @@ const SymbolRows = ({ stock, setSelected, handleOpenForm }) => {
                     </TableCell>
                   </TableRow>
                 ))
-              ) : (
+              )}
+
+              {/* options header */}
+              <TableRow>
+                <TableCell
+                  colSpan={100}
+                  sx={{ fontWeight: "bold", bgcolor: "background.paper" }}
+                >
+                  Options
+                </TableCell>
+              </TableRow>
+              {entry.stocks?.positions?.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={100} align="center">
-                    <NoDataFound label="No stock data found. Click 'New Entry' to add one." />
+                    <NoDataFound label="No option data found. Click 'New Entry' to add one." />
                   </TableCell>
                 </TableRow>
+              ) : (
+                entry.options.positions?.map((position) => (
+                  <TableRow key={position.id}>
+                    <TableCell>{position.quantity ?? "-"}</TableCell>
+                    <TableCell>{position.dte ?? "-"}</TableCell>
+                    <TableCell>
+                      {position.purchasePrice != null
+                        ? toMoney(position.purchasePrice)
+                        : "-"}
+                    </TableCell>
+                    <TableCell>{position.strategy ?? "-"}</TableCell>
+                    <TableCell>{position.strike ?? "-"}</TableCell>
+                    <TableCell>{position.side ?? "-"}</TableCell>
+                    <TableCell>{position.type ?? "-"}</TableCell>
+                    <TableCell>
+                      {position.credit != null ? toMoney(position.credit) : "-"}
+                    </TableCell>
+                    <TableCell>
+                      {position.debit != null ? toMoney(position.debit) : "-"}
+                    </TableCell>
+                    <TableCell align="right">
+                      {position.type === "Stock" ? (
+                        <StockMoreButton
+                          onCloseUpdate={() => handleOpenForm("updateStock")}
+                          onCloseDelete={() => handleOpenForm("deleteStock")}
+                          onCloseCloseStock={() => handleOpenForm("closeStock")}
+                          onCloseNotes={() => handleOpenForm("notes")}
+                          onCloseCoveredCall={() =>
+                            handleOpenForm("addCoveredCall")
+                          }
+                          selected={position}
+                          setSelected={setSelected}
+                        />
+                      ) : (
+                        <OptionMoreButton
+                          onCloseUpdate={() => handleOpenForm("update")}
+                          onCloseDelete={() => handleOpenForm("delete")}
+                          onCloseNotes={() => handleOpenForm("note")}
+                          selected={position}
+                          setSelected={setSelected}
+                        />
+                      )}
+                    </TableCell>
+                  </TableRow>
+                ))
               )}
             </TableBody>
             <TableFooter>
@@ -178,41 +248,41 @@ const SymbolRows = ({ stock, setSelected, handleOpenForm }) => {
                     <Grid container spacing={2} flex={1}>
                       <Grid size={{ xs: 6, md: 3 }}>
                         Original Cost Basis:{" "}
-                        {toMoney(stock.metrics?.originalCostBasis)}
+                        {toMoney(entry.stocks?.metrics?.originalCostBasis)}
                       </Grid>
                       <Grid size={{ xs: 6, md: 3 }}>
-                        Open Stock Qty: {stock.metrics?.openQty}
+                        Open Stock Qty: {entry.stocks?.metrics?.openQty}
                       </Grid>
                       <Grid size={{ xs: 6, md: 3 }}>
                         Dividends Collected:{" "}
-                        {toMoney(stock.metrics?.dividendsCollected)}
+                        {toMoney(entry.stocks?.metrics?.dividendsCollected)}
                       </Grid>
                       <Grid size={{ xs: 6, md: 3 }}>
                         Stock P/L (Unrealized):{" "}
-                        {toMoney(stock.metrics?.stockPL)}
+                        {toMoney(entry.stocks?.metrics?.stockPL)}
                       </Grid>
                       {/* <Grid>Stock P/L (Realized): {toMoney(s.realizedStockPL)}</Grid> */}
                       <Grid size={{ xs: 6, md: 3 }}>
                         Adjusted Cost Basis:{" "}
-                        {toMoney(stock.metrics?.adjustedCostBasis)}
+                        {toMoney(entry.stocks?.metrics?.adjustedCostBasis)}
                       </Grid>
                       <Grid size={{ xs: 6, md: 3 }}>
                         Current Stock Price:{" "}
-                        {toMoney(stock.metrics?.currentPrice)}
+                        {toMoney(entry.stocks?.metrics?.currentPrice)}
                       </Grid>
                       {/* options data */}
                       <Grid size={{ xs: 6, md: 3 }}>
-                        Net Premium: {toMoney(stock.options?.netPremium)}
+                        Net Premium: {toMoney(entry.options?.netPremium)}
                       </Grid>
                       <Grid size={{ xs: 6, md: 3 }}>
-                        Open Option P/L: {toMoney(stock.options?.openOptionPL)}
+                        Open Option P/L: {toMoney(entry.options?.openOptionPL)}
                       </Grid>
                       <Grid size={{ xs: 6, md: 3 }}>
-                        Open Option Qty: {stock.options?.openOptionQty}
+                        Open Option Qty: {entry.options?.openOptionQty}
                       </Grid>
                       <Grid size={{ xs: 6, md: 3 }}>
                         Closed Option P/L:{" "}
-                        {toMoney(stock.options?.closedOptionPL)}
+                        {toMoney(entry.options?.closedOptionPL)}
                       </Grid>
                     </Grid>
                   </Stack>
@@ -242,24 +312,62 @@ export default function StocksOptionsTable() {
   const openAddMoreMenu = Boolean(anchorAddMoreMenu);
   const [selected, setSelected] = useState(null);
   const [filter, setFilter] = useState("all");
-console.log(openForm)
+
   const { stocks, getStocks } = useStocksStore();
+  const { options, getOptions } = useOptionsStore();
 
   useEffect(() => {
     getStocks();
-  }, [getStocks]);
+    getOptions();
+  }, [getStocks, getOptions]);
 
-  const filteredStocks =
+  // Merge stocks and options by symbol
+  const positionsBySymbol = {};
+  stocks.forEach((stock) => {
+    if (!positionsBySymbol[stock.symbol])
+      positionsBySymbol[stock.symbol] = {
+        symbol: stock.symbol,
+        stocks: [],
+        options: [],
+      };
+    positionsBySymbol[stock.symbol].stocks = stock;
+  });
+  options.forEach((option) => {
+    if (!positionsBySymbol[option.symbol])
+      positionsBySymbol[option.symbol] = {
+        symbol: option.symbol,
+        stocks: [],
+        options: [],
+      };
+    positionsBySymbol[option.symbol].options = option;
+  });
+  const allSymbols = Object.values(positionsBySymbol);
+
+  // Filter by status if needed
+  const filteredSymbols =
     filter === "all"
-      ? stocks
-      : stocks.filter((p) => {
-          const status =
-            typeof p.status === "string"
-              ? p.status.toLowerCase()
-              : p.status === true
-              ? "open"
-              : "closed";
-          return filter === status;
+      ? allSymbols
+      : allSymbols.filter((entry) => {
+          // Check if any stock or option matches the filter
+          const hasStock = entry.stocks.some((p) => {
+            const status =
+              typeof p.status === "string"
+                ? p.status.toLowerCase()
+                : p.status === true
+                ? "open"
+                : "closed";
+            return filter === status;
+          });
+          const hasOption = entry.options.some((p) => {
+            const status =
+              typeof p.status === "string"
+                ? p.status.toLowerCase()
+                : p.status === true
+                ? "open"
+                : "closed";
+            return filter === status;
+          });
+          return hasStock || hasOption;
         });
 
   const handleOpenForm = (key, value) =>
@@ -332,18 +440,23 @@ console.log(openForm)
           </Menu>
         </Stack>
       </Stack>
-      <div>
-        {filteredStocks.map((stock) => (
-          <SymbolRows
-            key={stock.symbol}
-            stock={stock}
-            selected={selected}
-            setSelected={setSelected}
-            setOpenForm={setOpenForm}
-            handleOpenForm={handleOpenForm}
-          />
-        ))}
-      </div>
+
+      {filteredSymbols.length === 0 ? (
+        <NoDataFound label="No stock or option data found. Click 'New Entry' to add one." />
+      ) : (
+        <Stack spacing={2}>
+          {filteredSymbols.map((entry) => (
+            <SymbolRows
+              key={entry.symbol}
+              entry={entry}
+              selected={selected}
+              setSelected={setSelected}
+              setOpenForm={setOpenForm}
+              handleOpenForm={handleOpenForm}
+            />
+          ))}
+        </Stack>
+      )}
 
       {/* modals */}
       <AddStockForm

@@ -53,9 +53,19 @@ model Stocks {
   editUserId String
 }
 
-enum OptionFamily {
+enum OptionSide {
   call
   put
+}
+
+enum OptionStrategy {
+  spread
+  single
+}
+
+enum OptionType {
+  buy
+  sell
 }
 
 enum LegSide {
@@ -69,14 +79,13 @@ enum TradeStatus {
 }
 
 model Options {
-  id             String       @id @default(cuid())
+  id             String         @id @default(cuid())
   symbol         String
-  strategy       String // "Single" | "Credit Call Spread" | ...
-  family         OptionFamily // call | put (the underlying family)
+  strategy       OptionStrategy
   quantity       Int // contracts per leg (common lot size)
   tradeDate      DateTime
   expirationDate DateTime
-  status         TradeStatus  @default(open)
+  status         TradeStatus    @default(open)
 
   legs OptionLegs[]
 
@@ -89,14 +98,13 @@ model Options {
 }
 
 model OptionLegs {
-  id     String       @id @default(cuid())
-  side   LegSide // short | long | single
-  family OptionFamily // call | put
-  strike Decimal      @db.Decimal(10, 2)
-  price  Decimal      @db.Decimal(10, 2) // per-contract premium
-  credit Decimal?     @db.Decimal(10, 2) // usually side=short => credit=price
-  debit  Decimal?     @db.Decimal(10, 2) // usually side=long  => debit=price
-  status TradeStatus  @default(open)
+  id     String      @id @default(cuid())
+  side   OptionSide // call | put
+  strike Decimal     @db.Decimal(10, 2)
+  type   OptionType // buy | sell
+  debit  Decimal     @db.Decimal(10, 2)
+  credit Decimal     @db.Decimal(10, 2)
+  status TradeStatus @default(open)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -106,7 +114,6 @@ model OptionLegs {
   trade   Options @relation(fields: [tradeId], references: [id], onDelete: Cascade)
 
   @@index([tradeId])
-  @@index([family, strike])
 }
 
 model Cryptos {

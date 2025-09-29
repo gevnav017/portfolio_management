@@ -21,7 +21,7 @@ const useOptionsStore = create((set) => ({
     try {
       set({ isLoading: true });
       const res = await axiosInstance.post("/api/options", data);
-      if (res.data.success) {
+      if (res.data.success) { 
         set((state) => ({
           options: [...state.options, res.data.addedOption],
           isLoading: false,

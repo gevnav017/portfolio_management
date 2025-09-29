@@ -28,7 +28,8 @@ export default function AddOptionForm({ open, onClose, symbol }) {
 
   const { control, handleSubmit, reset, watch } = useForm({
     defaultValues: {
-      strategy: "credit", // "credit" | "single"
+      symbol: "",
+      strategy: "spread", // "spread" | "single"
       side: "call", // "call" | "put"
       quantity: 1,
       tradeDate: "",
@@ -47,14 +48,14 @@ export default function AddOptionForm({ open, onClose, symbol }) {
 
   const values = watch();
   const netCredit = useMemo(() => {
-    if (values.strategy !== "credit") return 0;
+    if (values.strategy !== "spread") return 0;
     const s = Number(values.shortPrice || 0);
     const l = Number(values.longPrice || 0);
     return Math.max(0, s - l);
   }, [values]);
 
   const width = useMemo(() => {
-    if (values.strategy !== "credit") return 0;
+    if (values.strategy !== "spread") return 0;
     const a = Number(values.shortStrike || 0);
     const b = Number(values.longStrike || 0);
     return Math.abs(a - b);
@@ -69,14 +70,14 @@ export default function AddOptionForm({ open, onClose, symbol }) {
     [width, netCredit, values.quantity]
   );
   const breakeven = useMemo(() => {
-    if (values.strategy !== "credit") return 0;
+    if (values.strategy !== "spread") return 0;
     const c = netCredit;
     const k = Number(values.shortStrike || 0);
     return values.side === "call" ? k + c : k - c;
   }, [values, netCredit]);
 
-  const validCredit =
-    values.strategy === "credit" &&
+  const validSpread =
+    values.strategy === "spread" &&
     Number(values.quantity) > 0 &&
     values.tradeDate &&
     values.expirationDate &&
@@ -96,65 +97,64 @@ export default function AddOptionForm({ open, onClose, symbol }) {
     Number(values.singleStrike) > 0 &&
     Number(values.singlePrice) > 0;
 
-  const valid = values.strategy === "credit" ? validCredit : validSingle;
+  const valid = values.strategy === "spread" ? validSpread : validSingle;
 
-  const onSubmit = async (v) => {
+  const onSubmit = async (formData) => {
     try {
-      let payload;
+      let data;
 
-      if (v.strategy === "credit") {
-        payload = {
-          symbol,
-          strategy:
-            v.side === "call" ? "Credit Call Spread" : "Credit Put Spread",
-          side: v.side,
-          quantity: Number(v.quantity),
-          tradeDate: v.tradeDate,
-          expirationDate: v.expirationDate,
+      if (formData.strategy === "spread") {
+        data = {
+          symbol: formData.symbol,
+          quantity: Number(formData.quantity),
+          strategy: formData.strategy,
+          tradeDate: new Date(formData.tradeDate),
+          expirationDate: new Date(formData.expirationDate),
           legs: [
             {
               side: "short",
-              type: v.side,
-              strike: Number(v.shortStrike),
-              price: Number(v.shortPrice),
-              credit: Number(v.shortPrice),
+              type: formData.side,
+              strike: Number(formData.shortStrike),
+              credit: Number(formData.shortPrice),
               debit: 0,
             },
             {
               side: "long",
-              type: v.side,
-              strike: Number(v.longStrike),
-              price: Number(v.longPrice),
+              type: formData.side,
+              strike: Number(formData.longStrike),
               credit: 0,
-              debit: Number(v.longPrice),
+              debit: Number(formData.longPrice),
             },
           ],
           metrics: { netCredit, width, maxProfit, maxLoss, breakeven },
         };
       } else {
         // Single option
-        const isCredit = v.singleAction === "sell";
-        payload = {
-          symbol,
-          strategy: "Single",
-          side: values.side, // family (call/put) still matters
-          quantity: Number(v.quantity),
-          tradeDate: v.tradeDate,
-          expirationDate: v.expirationDate,
+        data = {
+          symbol: formData.symbol,
+          quantity: Number(formData.quantity),
+          strategy: formData.strategy,
+          tradeDate: new Date(formData.tradeDate),
+          expirationDate: new Date(formData.expirationDate),
           legs: [
             {
-              side: "single",
-              type: values.side,
-              strike: Number(v.singleStrike),
-              price: Number(v.singlePrice),
-              credit: isCredit ? Number(v.singlePrice) : 0,
-              debit: !isCredit ? Number(v.singlePrice) : 0,
+              side: formData.side,
+              strike: Number(formData.singleStrike),
+              type: formData.singleType,
+              credit:
+                formData.singleType === "sell"
+                  ? Number(formData.singlePrice)
+                  : 0,
+              debit:
+                formData.singleType === "buy"
+                  ? Number(formData.singlePrice)
+                  : 0,
             },
           ],
         };
       }
 
-      await addOption(payload); // your store should POST to API
+      await addOption(data);
       reset();
       onClose?.();
     } catch (e) {
@@ -195,14 +195,14 @@ export default function AddOptionForm({ open, onClose, symbol }) {
                   value={field.value}
                 >
                   <ToggleButton
-                    value="credit"
+                    value="spread"
                     sx={{
                       textTransform: "none",
                       borderRadius: 4,
                       m: 0.5,
                     }}
                   >
-                    Credit Spread
+                    Spread
                   </ToggleButton>
                   <ToggleButton
                     value="single"
@@ -297,7 +297,7 @@ export default function AddOptionForm({ open, onClose, symbol }) {
             {values.strategy === "single" ? (
               <>
                 <Controller
-                  name="singleAction"
+                  name="singleType"
                   control={control}
                   render={({ field }) => (
                     <ToggleButtonGroup
