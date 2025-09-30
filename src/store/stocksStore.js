@@ -23,8 +23,8 @@ const useStocksStore = create((set) => ({
       set({ isLoading: true });
       const res = await axiosInstance.post("/api/stocks", data);
       if (res.data.success) {
-        showSnackbar(res.data.message, "success");
         await useStocksStore.getState().getStocks(); // refetch grouped data
+        showSnackbar(res.data.message, "success");
         set({ isLoading: false });
       } else {
         showSnackbar(res.data.message, "error");
@@ -42,8 +42,8 @@ const useStocksStore = create((set) => ({
       set({ isLoading: true });
       const res = await axiosInstance.put(`/api/stocks/${stockId}`, data);
       if (res.data.success) {
-        showSnackbar(res.data.message, "success");
         await useStocksStore.getState().getStocks(); // refetch grouped data
+        showSnackbar(res.data.message, "success");
         set({ isLoading: false });
       } else {
         showSnackbar(res.data.message, "error");
@@ -61,8 +61,8 @@ const useStocksStore = create((set) => ({
       set({ isLoading: true });
       const res = await axiosInstance.delete(`/api/stocks/${stockId}`);
       if (res.data.success) {
-        showSnackbar(res.data.message, "success");
         await useStocksStore.getState().getStocks(); // refetch grouped data
+        showSnackbar(res.data.message, "success");
         set({ isLoading: false });
       } else {
         showSnackbar(res.data.message, "error");

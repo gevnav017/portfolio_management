@@ -3,6 +3,7 @@
 // route imports
 import { useMemo } from "react";
 import { useForm, Controller } from "react-hook-form";
+import { capAllLetters } from "@/lib/cap-letters";
 import useOptionsStore from "@/store/optionsStore";
 
 // MUI imports
@@ -32,7 +33,7 @@ export default function AddOptionForm({ open, onClose, symbol }) {
       strategy: "spread", // "spread" | "single"
       side: "call", // "call" | "put"
       quantity: 1,
-      tradeDate: "",
+      openDate: "",
       expirationDate: "",
       // single
       singleAction: "sell", // "sell" = credit, "buy" = debit
@@ -79,7 +80,7 @@ export default function AddOptionForm({ open, onClose, symbol }) {
   const validSpread =
     values.strategy === "spread" &&
     Number(values.quantity) > 0 &&
-    values.tradeDate &&
+    values.openDate &&
     values.expirationDate &&
     Number(values.shortStrike) > 0 &&
     Number(values.longStrike) > 0 &&
@@ -92,7 +93,7 @@ export default function AddOptionForm({ open, onClose, symbol }) {
   const validSingle =
     values.strategy === "single" &&
     Number(values.quantity) > 0 &&
-    values.tradeDate &&
+    values.openDate &&
     values.expirationDate &&
     Number(values.singleStrike) > 0 &&
     Number(values.singlePrice) > 0;
@@ -105,55 +106,43 @@ export default function AddOptionForm({ open, onClose, symbol }) {
 
       if (formData.strategy === "spread") {
         data = {
-          symbol: formData.symbol,
+          symbol: capAllLetters(formData.symbol),
           quantity: Number(formData.quantity),
           strategy: formData.strategy,
-          tradeDate: new Date(formData.tradeDate),
+          openDate: new Date(formData.openDate),
           expirationDate: new Date(formData.expirationDate),
+          side: formData.side,
+          type: formData.type,
+          // spread
           legs: [
             {
-              side: "short",
-              type: formData.side,
               strike: Number(formData.shortStrike),
               credit: Number(formData.shortPrice),
               debit: 0,
             },
             {
-              side: "long",
-              type: formData.side,
               strike: Number(formData.longStrike),
               credit: 0,
               debit: Number(formData.longPrice),
             },
           ],
-          metrics: { netCredit, width, maxProfit, maxLoss, breakeven },
         };
       } else {
         // Single option
         data = {
-          symbol: formData.symbol,
+          symbol: capAllLetters(formData.symbol),
           quantity: Number(formData.quantity),
           strategy: formData.strategy,
-          tradeDate: new Date(formData.tradeDate),
+          openDate: new Date(formData.openDate),
           expirationDate: new Date(formData.expirationDate),
-          legs: [
-            {
-              side: formData.side,
-              strike: Number(formData.singleStrike),
-              type: formData.singleType,
-              credit:
-                formData.singleType === "sell"
-                  ? Number(formData.singlePrice)
-                  : 0,
-              debit:
-                formData.singleType === "buy"
-                  ? Number(formData.singlePrice)
-                  : 0,
-            },
-          ],
+          strike: Number(formData.singleStrike),
+          side: formData.side,
+          type: formData.type,
+          credit: Number(formData.singlePrice),
+          debit: Number(formData.singlePrice),
         };
       }
-
+      console.log("Submitting data:", data);
       await addOption(data);
       reset();
       onClose?.();
@@ -267,12 +256,12 @@ export default function AddOptionForm({ open, onClose, symbol }) {
             />
 
             <Controller
-              name="tradeDate"
+              name="openDate"
               control={control}
               render={({ field }) => (
                 <TextField
                   {...field}
-                  label="Trade Date"
+                  label="Open Date"
                   fullWidth
                   type="date"
                   slotProps={{ inputLabel: { shrink: true } }}
@@ -294,44 +283,44 @@ export default function AddOptionForm({ open, onClose, symbol }) {
               )}
             />
 
+            <Controller
+              name="type"
+              control={control}
+              render={({ field }) => (
+                <ToggleButtonGroup
+                  {...field}
+                  exclusive
+                  fullWidth
+                  onChange={(_, val) => field.onChange(val)} // hook into RHF
+                  value={field.value}
+                >
+                  <ToggleButton
+                    value="sell"
+                    sx={{
+                      textTransform: "none",
+                      borderRadius: 4,
+                      m: 0.5,
+                    }}
+                  >
+                    Sell (credit)
+                  </ToggleButton>
+
+                  <ToggleButton
+                    value="buy"
+                    sx={{
+                      textTransform: "none",
+                      borderRadius: 4,
+                      m: 0.5,
+                    }}
+                  >
+                    Buy (debit)
+                  </ToggleButton>
+                </ToggleButtonGroup>
+              )}
+            />
+
             {values.strategy === "single" ? (
               <>
-                <Controller
-                  name="singleType"
-                  control={control}
-                  render={({ field }) => (
-                    <ToggleButtonGroup
-                      {...field}
-                      exclusive
-                      fullWidth
-                      onChange={(_, val) => field.onChange(val)} // hook into RHF
-                      value={field.value}
-                    >
-                      <ToggleButton
-                        value="sell"
-                        sx={{
-                          textTransform: "none",
-                          borderRadius: 4,
-                          m: 0.5,
-                        }}
-                      >
-                        Sell (credit)
-                      </ToggleButton>
-
-                      <ToggleButton
-                        value="buy"
-                        sx={{
-                          textTransform: "none",
-                          borderRadius: 4,
-                          m: 0.5,
-                        }}
-                      >
-                        Buy (debit)
-                      </ToggleButton>
-                    </ToggleButtonGroup>
-                  )}
-                />
-
                 <Controller
                   name="singleStrike"
                   control={control}

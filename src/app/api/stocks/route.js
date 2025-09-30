@@ -14,7 +14,7 @@ export async function GET(req) {
     // Pull all positions for the user (stocks, options, dividends)
     const positions = await db.stocks.findMany({
       where: { editUserId: user.id },
-      orderBy: [{ symbol: "asc" }, { tradeDate: "asc" }],
+      orderBy: [{ symbol: "asc" }, { openDate: "asc" }],
     });
 
     // If you store quotes, fetch here:

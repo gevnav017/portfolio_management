@@ -2,7 +2,7 @@ import { create } from "zustand";
 import axiosInstance from "@/lib/axios-instance";
 import { showSnackbar } from "@/lib/show-snackbar";
 
-const useOptionsStore = create((set) => ({
+const useOptionsStore = create((set, get) => ({
   options: [],
   isLoading: false,
 
@@ -21,12 +21,10 @@ const useOptionsStore = create((set) => ({
     try {
       set({ isLoading: true });
       const res = await axiosInstance.post("/api/options", data);
-      if (res.data.success) { 
-        set((state) => ({
-          options: [...state.options, res.data.addedOption],
-          isLoading: false,
-        }));
+      if (res.data.success) {
+        await useOptionsStore.getState().getOptions(); // refetch grouped data
         showSnackbar(res.data.message, "success");
+        set({ isLoading: false });
       } else {
         showSnackbar(res.data.message, "error");
         set({ isLoading: false });
@@ -46,13 +44,9 @@ const useOptionsStore = create((set) => ({
       set({ isLoading: true });
       const res = await axiosInstance.put(`/api/options/${optionId}`, data);
       if (res.data.success) {
-        set((state) => ({
-          options: state.options.map((option) =>
-            option.id === optionId ? res.data.updatedOption : option
-          ),
-          isLoading: false,
-        }));
+        await useOptionsStore.getState().getOptions(); // refetch grouped data
         showSnackbar(res.data.message, "success");
+        set({ isLoading: false });
       } else {
         showSnackbar(res.data.message, "error");
         set({ isLoading: false });
@@ -72,11 +66,9 @@ const useOptionsStore = create((set) => ({
       set({ isLoading: true });
       const res = await axiosInstance.delete(`/api/options/${optionId}`);
       if (res.data.success) {
-        set((state) => ({
-          options: state.options.filter((option) => option.id !== optionId),
-          isLoading: false,
-        }));
+        await useOptionsStore.getState().getOptions(); // refetch grouped data
         showSnackbar(res.data.message, "success");
+        set({ isLoading: false });
       } else {
         showSnackbar(res.data.message, "error");
         set({ isLoading: false });

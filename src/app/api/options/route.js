@@ -11,12 +11,11 @@ export async function GET(req) {
   try {
     const user = await apiUserAuth();
 
-    // Pull all positions for the user 
+    // Pull all positions for the user
     const positions = await db.options.findMany({
       where: { editUserId: user.id },
-      orderBy: [{ symbol: "asc" }, { tradeDate: "asc" }],
+      orderBy: [{ symbol: "asc" }, { openDate: "asc" }],
     });
-
     // If you store quotes, fetch here:
     // const quotes = await db.quote.findMany({ where: { symbol: { in: symbols } } });
     // const spotBySymbol = Object.fromEntries(quotes.map(q => [q.symbol, q.last]));
@@ -66,22 +65,36 @@ export async function POST(req) {
 
     const data = await req.json();
 
-    // Separate out legs if present, and use Prisma nested create
+    if (!data.legs || !Array.isArray(data.legs) || data.legs.length === 0) {
+      const addedStock = await db.options.create({
+        data: {
+          ...data,
+          editUserId: user.id,
+        },
+      });
+
+      return NextResponse.json({
+        success: true,
+        message: "Option added successfully",
+        addedStock,
+      });
+    }
+
     const { legs, ...optionData } = data;
-    const addedOption = await db.options.create({
-      data: {
+
+    const { count } = await db.options.createMany({
+      data: legs.map((leg) => ({
         ...optionData,
+        strike: leg.strike,
+        debit: leg.debit,
+        credit: leg.credit,
         editUserId: user.id,
-        ...(legs && Array.isArray(legs) && legs.length > 0
-          ? { legs: { create: legs } }
-          : {}),
-      },
+      })),
     });
 
     return NextResponse.json({
       success: true,
-      message: "Option added successfully",
-      addedOption,
+      message: `${count} option(s) added successfully`,
     });
   } catch (err) {
     console.error("Error adding option: ", err);

@@ -1,7 +1,8 @@
 // Format a number as USD currency
 export const toMoney = (value) => {
-  if (value == null || isNaN(value)) return "-";
-  return value.toLocaleString("en-US", {
+  if (value == null) return "-";
+  const num = Number(value); // converts "1.1" → 1.1
+  return num.toLocaleString("en-US", {
     style: "currency",
     currency: "USD",
   });

@@ -24,8 +24,8 @@ model User {
 }
 
 model LiquidPositions {
-  id     String @id @default(cuid())
-  amount Float
+  id     String  @id @default(cuid())
+  amount Decimal @default(0) @db.Decimal(10, 2)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -36,14 +36,15 @@ model LiquidPositions {
 }
 
 model Stocks {
-  id            String   @id @default(cuid())
-  symbol        String
-  quantity      Int
-  type          String   @default("Stock")
-  purchasePrice Float
-  sellPrice     Float?
-  tradeDate     DateTime
-  status        String   @default("open")
+  id        String    @id @default(cuid())
+  symbol    String
+  quantity  Int
+  type      String    @default("Stock")
+  debit     Decimal   @default(0) @db.Decimal(10, 2)
+  credit    Decimal   @default(0) @db.Decimal(10, 2)
+  openDate  DateTime
+  closeDate DateTime?
+  status    String    @default("open")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -83,11 +84,15 @@ model Options {
   symbol         String
   strategy       OptionStrategy
   quantity       Int // contracts per leg (common lot size)
-  tradeDate      DateTime
+  openDate       DateTime
+  closeDate      DateTime?
   expirationDate DateTime
+  side           OptionSide // call | put
+  strike         Decimal        @db.Decimal(10, 2)
+  type           OptionType // buy | sell
+  debit          Decimal        @default(0) @db.Decimal(10, 2)
+  credit         Decimal        @default(0) @db.Decimal(10, 2)
   status         TradeStatus    @default(open)
-
-  legs OptionLegs[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -97,36 +102,16 @@ model Options {
   editUser   User   @relation(fields: [editUserId], references: [id])
 }
 
-model OptionLegs {
-  id     String      @id @default(cuid())
-  side   OptionSide // call | put
-  strike Decimal     @db.Decimal(10, 2)
-  type   OptionType // buy | sell
-  debit  Decimal     @db.Decimal(10, 2)
-  credit Decimal     @db.Decimal(10, 2)
-  status TradeStatus @default(open)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // relations
-  tradeId String
-  trade   Options @relation(fields: [tradeId], references: [id], onDelete: Cascade)
-
-  @@index([tradeId])
-}
-
 model Cryptos {
-  id            String      @id @default(cuid())
-  symbol        String
-  purchasePrice Float
-  quantity      Int
-  type          String      @default("Crypto")
-  sellPrice     Float?
-  debit         Float?
-  credit        Float?
-  tradeDate     DateTime
-  status        TradeStatus @default(open)
+  id        String      @id @default(cuid())
+  symbol    String
+  quantity  Int
+  type      String      @default("Crypto")
+  debit     Decimal     @default(0) @db.Decimal(10, 2)
+  credit    Decimal     @default(0) @db.Decimal(10, 2)
+  openDate  DateTime
+  closeDate DateTime?
+  status    TradeStatus @default(open)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

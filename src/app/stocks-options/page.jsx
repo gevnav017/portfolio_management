@@ -17,6 +17,7 @@ import CloseStockForm from "./close-stock";
 import AddCoveredCallForm from "./add-covered-call";
 import NoDataFound from "@/components/NoDataFound";
 import { toMoney } from "@/lib/format";
+import { capFirstLetter } from "@/lib/cap-letters";
 import useStocksStore from "@/store/stocksStore";
 import useOptionsStore from "@/store/optionsStore";
 
@@ -104,7 +105,6 @@ const SymbolRows = ({ entry, setSelected, handleOpenForm }) => {
               <TableRow>
                 <TableCell>Qty</TableCell>
                 <TableCell>DTE</TableCell>
-                <TableCell>Price</TableCell>
                 <TableCell>Strategy</TableCell>
                 <TableCell>Strike</TableCell>
                 <TableCell>Side</TableCell>
@@ -116,14 +116,16 @@ const SymbolRows = ({ entry, setSelected, handleOpenForm }) => {
             </TableHead>
             <TableBody>
               {/* stocks header */}
-              <TableRow>
-                <TableCell
-                  colSpan={100}
-                  sx={{ fontWeight: "bold", bgcolor: "background.paper" }}
-                >
-                  Stocks
-                </TableCell>
-              </TableRow>
+              {entry.stocks?.positions?.length > 0 && (
+                <TableRow>
+                  <TableCell
+                    colSpan={100}
+                    sx={{ fontWeight: "bold", bgcolor: "background.paper" }}
+                  >
+                    Stocks
+                  </TableCell>
+                </TableRow>
+              )}
               {entry.stocks?.positions?.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={100} align="center">
@@ -134,16 +136,11 @@ const SymbolRows = ({ entry, setSelected, handleOpenForm }) => {
                 entry.stocks.positions?.map((position) => (
                   <TableRow key={position.id}>
                     <TableCell>{position.quantity ?? "-"}</TableCell>
-                    <TableCell>{position.dte ?? "-"}</TableCell>
-                    <TableCell>
-                      {position.purchasePrice != null
-                        ? toMoney(position.purchasePrice)
-                        : "-"}
-                    </TableCell>
-                    <TableCell>{position.strategy ?? "-"}</TableCell>
-                    <TableCell>{position.strike ?? "-"}</TableCell>
-                    <TableCell>{position.side ?? "-"}</TableCell>
-                    <TableCell>{position.type ?? "-"}</TableCell>
+                    <TableCell>-</TableCell>
+                    <TableCell>-</TableCell>
+                    <TableCell>-</TableCell>
+                    <TableCell>-</TableCell>
+                    <TableCell>-</TableCell>
                     <TableCell>
                       {position.credit != null ? toMoney(position.credit) : "-"}
                     </TableCell>
@@ -151,42 +148,34 @@ const SymbolRows = ({ entry, setSelected, handleOpenForm }) => {
                       {position.debit != null ? toMoney(position.debit) : "-"}
                     </TableCell>
                     <TableCell align="right">
-                      {position.type === "Stock" ? (
-                        <StockMoreButton
-                          onCloseUpdate={() => handleOpenForm("updateStock")}
-                          onCloseDelete={() => handleOpenForm("deleteStock")}
-                          onCloseCloseStock={() => handleOpenForm("closeStock")}
-                          onCloseNotes={() => handleOpenForm("notes")}
-                          onCloseCoveredCall={() =>
-                            handleOpenForm("addCoveredCall")
-                          }
-                          selected={position}
-                          setSelected={setSelected}
-                        />
-                      ) : (
-                        <OptionMoreButton
-                          onCloseUpdate={() => handleOpenForm("update")}
-                          onCloseDelete={() => handleOpenForm("delete")}
-                          onCloseNotes={() => handleOpenForm("note")}
-                          selected={position}
-                          setSelected={setSelected}
-                        />
-                      )}
+                      <StockMoreButton
+                        onCloseUpdate={() => handleOpenForm("updateStock")}
+                        onCloseDelete={() => handleOpenForm("deleteStock")}
+                        onCloseCloseStock={() => handleOpenForm("closeStock")}
+                        onCloseNotes={() => handleOpenForm("notes")}
+                        onCloseCoveredCall={() =>
+                          handleOpenForm("addCoveredCall")
+                        }
+                        selected={position}
+                        setSelected={setSelected}
+                      />
                     </TableCell>
                   </TableRow>
                 ))
               )}
 
               {/* options header */}
-              <TableRow>
-                <TableCell
-                  colSpan={100}
-                  sx={{ fontWeight: "bold", bgcolor: "background.paper" }}
-                >
-                  Options
-                </TableCell>
-              </TableRow>
-              {entry.stocks?.positions?.length === 0 ? (
+              {entry.options?.positions?.length > 0 && (
+                <TableRow>
+                  <TableCell
+                    colSpan={100}
+                    sx={{ fontWeight: "bold", bgcolor: "background.paper" }}
+                  >
+                    Options
+                  </TableCell>
+                </TableRow>
+              )}
+              {entry.options?.positions?.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={100} align="center">
                     <NoDataFound label="No option data found. Click 'New Entry' to add one." />
@@ -196,16 +185,24 @@ const SymbolRows = ({ entry, setSelected, handleOpenForm }) => {
                 entry.options.positions?.map((position) => (
                   <TableRow key={position.id}>
                     <TableCell>{position.quantity ?? "-"}</TableCell>
-                    <TableCell>{position.dte ?? "-"}</TableCell>
                     <TableCell>
-                      {position.purchasePrice != null
-                        ? toMoney(position.purchasePrice)
+                      {position.expirationDate
+                        ? Math.ceil(
+                            (new Date(position.expirationDate) - new Date()) /
+                              (1000 * 60 * 60 * 24)
+                          )
                         : "-"}
                     </TableCell>
-                    <TableCell>{position.strategy ?? "-"}</TableCell>
+                    <TableCell>
+                      {capFirstLetter(position.strategy) ?? "-"}
+                    </TableCell>
                     <TableCell>{position.strike ?? "-"}</TableCell>
-                    <TableCell>{position.side ?? "-"}</TableCell>
-                    <TableCell>{position.type ?? "-"}</TableCell>
+                    <TableCell>
+                      {capFirstLetter(position.side) ?? "-"}
+                    </TableCell>
+                    <TableCell>
+                      {capFirstLetter(position.type) ?? "-"}
+                    </TableCell>
                     <TableCell>
                       {position.credit != null ? toMoney(position.credit) : "-"}
                     </TableCell>
@@ -213,27 +210,13 @@ const SymbolRows = ({ entry, setSelected, handleOpenForm }) => {
                       {position.debit != null ? toMoney(position.debit) : "-"}
                     </TableCell>
                     <TableCell align="right">
-                      {position.type === "Stock" ? (
-                        <StockMoreButton
-                          onCloseUpdate={() => handleOpenForm("updateStock")}
-                          onCloseDelete={() => handleOpenForm("deleteStock")}
-                          onCloseCloseStock={() => handleOpenForm("closeStock")}
-                          onCloseNotes={() => handleOpenForm("notes")}
-                          onCloseCoveredCall={() =>
-                            handleOpenForm("addCoveredCall")
-                          }
-                          selected={position}
-                          setSelected={setSelected}
-                        />
-                      ) : (
-                        <OptionMoreButton
-                          onCloseUpdate={() => handleOpenForm("update")}
-                          onCloseDelete={() => handleOpenForm("delete")}
-                          onCloseNotes={() => handleOpenForm("note")}
-                          selected={position}
-                          setSelected={setSelected}
-                        />
-                      )}
+                      <OptionMoreButton
+                        onCloseUpdate={() => handleOpenForm("update")}
+                        onCloseDelete={() => handleOpenForm("delete")}
+                        onCloseNotes={() => handleOpenForm("note")}
+                        selected={position}
+                        setSelected={setSelected}
+                      />
                     </TableCell>
                   </TableRow>
                 ))
@@ -320,7 +303,7 @@ export default function StocksOptionsTable() {
     getStocks();
     getOptions();
   }, [getStocks, getOptions]);
-
+  console.log("options ", options);
   // Merge stocks and options by symbol
   const positionsBySymbol = {};
   stocks.forEach((stock) => {
@@ -444,7 +427,7 @@ export default function StocksOptionsTable() {
       {filteredSymbols.length === 0 ? (
         <NoDataFound label="No stock or option data found. Click 'New Entry' to add one." />
       ) : (
-        <Stack spacing={2}>
+        <div>
           {filteredSymbols.map((entry) => (
             <SymbolRows
               key={entry.symbol}
@@ -455,7 +438,7 @@ export default function StocksOptionsTable() {
               handleOpenForm={handleOpenForm}
             />
           ))}
-        </Stack>
+        </div>
       )}
 
       {/* modals */}

@@ -36,8 +36,9 @@ export default function AddStockForm({ open, onClose }) {
       const data = {
         symbol: capAllLetters(formData.symbol),
         quantity: parseInt(formData.qty, 10),
-        purchasePrice: parseFloat(formData.purchasePrice),
-        tradeDate: new Date(formData.tradeDate),
+        debit: formData.debit,
+        credit: formData.credit,
+        openDate: new Date(formData.openDate),
       };
 
       await addStock(data);
@@ -91,7 +92,7 @@ export default function AddStockForm({ open, onClose }) {
               )}
             />
             <Controller
-              name="purchasePrice"
+              name="debit"
               control={control}
               defaultValue=""
               rules={{ required: "This field is required" }}
@@ -113,18 +114,18 @@ export default function AddStockForm({ open, onClose }) {
               )}
             />
             <Controller
-              name="tradeDate"
+              name="openDate"
               control={control}
               defaultValue=""
               rules={{ required: "This field is required" }}
               render={({ field }) => (
                 <TextField
                   {...field}
-                  label="Trade Date"
+                  label="Open Date"
                   fullWidth
                   type="date"
-                  error={!!errors.tradeDate}
-                  helperText={errors.tradeDate?.message}
+                  error={!!errors.openDate}
+                  helperText={errors.openDate?.message}
                   slotProps={{ inputLabel: { shrink: true } }}
                 />
               )}
